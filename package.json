@@ -2,7 +2,7 @@
   "name": "basic-strategy-flashcards",
   "version": "1.0.0",
   "private": true,
-  "description": "Blackjack basic strategy flashcards with a login, ready for Railway.",
+  "description": "Blackjack basic strategy flashcards and a daily betting-splits board, with a login, ready for Railway.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

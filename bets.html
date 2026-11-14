@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e7ebe9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1210" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bets">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex">
+<title>Bets of the Day</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/*
+  Layout: one centred column. Header, a status line, the filters in one block, three
+  "at a glance" tiles, then the ranked list. Each row shows the side the public is on,
+  with two bars: share of bets (tickets) and share of money (handle).
+*/
+:root{
+  --bg:#e7ebe9; --surface:#f9fbfa; --surface-2:#eef2f0; --ink:#14201a; --muted:#56665e; --line:#cfd8d3; --focus:#2c6fd1;
+  --felt:#13663f; --felt-deep:#0a3f27; --felt-ink:#e6f2eb; --felt-dim:rgba(230,242,235,.62); --rail:#3b2a1f;
+  --track:#e1e7e4;
+  --s-bets:#1f9a5c;   /* share of bets */
+  --s-money:#3b82d6;  /* share of money */
+  --up:#15784a; --down:#bf3328; --warn:#9a5b00; --warn-bg:#fff4da; --warn-line:#efd69c;
+  --tag-bg:#eef2f0;
+  --font-display:'Barlow Condensed','Arial Narrow','Roboto Condensed',sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1210; --surface:#141c18; --surface-2:#1a2420; --ink:#e3ebe6; --muted:#93a39a; --line:#29352f; --focus:#7fb0ff;
+    --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.58); --rail:#24180f;
+    --track:#223029; --s-bets:#2aa565; --s-money:#4a90db;
+    --up:#55c486; --down:#f07065; --warn:#f0c25e; --warn-bg:#2a2311; --warn-line:#4b3e18; --tag-bg:#1f2a25;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1210; --surface:#141c18; --surface-2:#1a2420; --ink:#e3ebe6; --muted:#93a39a; --line:#29352f; --focus:#7fb0ff;
+  --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.58); --rail:#24180f;
+  --track:#223029; --s-bets:#2aa565; --s-money:#4a90db;
+  --up:#55c486; --down:#f07065; --warn:#f0c25e; --warn-bg:#2a2311; --warn-line:#4b3e18; --tag-bg:#1f2a25;
+  color-scheme:dark;
+}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (display-mode: standalone){body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--felt-deep);z-index:10}}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body)}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.app{max-width:760px;margin:0 auto;padding-block:14px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+
+/* Header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{flex:none;width:40px;height:40px;border-radius:10px;background:radial-gradient(110% 90% at 50% 30%,var(--felt),var(--felt-deep));border:3px solid var(--rail);color:var(--felt-ink);display:grid;place-items:center;font:700 19px/1 var(--font-display)}
+h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase;text-wrap:balance}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.switch-app{flex:none;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);font:600 14px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;color:var(--muted)}
+.switch-app:hover{color:var(--ink)}
+
+/* Status line */
+.status{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.status b{color:var(--ink);font-weight:600}
+.btn{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:7px 13px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:600 13px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn:disabled{opacity:.55;cursor:progress}
+.spin{width:12px;height:12px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:none}
+.btn.busy .spin{display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{to{rotate:360deg}}
+
+/* Filters */
+.filters{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.frow{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.flabel{flex:none;width:62px;padding-top:9px;font:600 11px/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0;padding:2px 0}
+.toggles{display:flex;flex-wrap:wrap;gap:6px 20px;padding-top:2px}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:32px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font:600 13px/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.chip small{font:500 11px/1 var(--font-body);letter-spacing:0;opacity:.8}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;-webkit-user-select:none;user-select:none}
+.toggle input{width:16px;height:16px;margin:0;accent-color:var(--felt)}
+
+/* At-a-glance tiles */
+.glance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{min-width:0;display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:14px;background:radial-gradient(120% 100% at 50% 0%,var(--felt),var(--felt-deep));border:1px solid color-mix(in srgb,var(--felt-deep) 70%,#000);color:var(--felt-ink)}
+.tile h2{margin:0;font:600 11px/1.2 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--felt-dim)}
+.tile .big{font:700 30px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.tile .big small{font-size:15px;font-weight:600;color:var(--felt-dim);margin-left:3px}
+.tile .what{font-weight:600;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.tile .where{font-size:12px;color:var(--felt-dim);line-height:1.35;overflow-wrap:anywhere}
+.tile.empty .big{color:var(--felt-dim)}
+
+/* Ranked list */
+.board{border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.board-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.board-head h2{margin:0;font:700 17px/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase}
+.key{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key i{width:14px;height:6px;border-radius:3px;background:var(--c)}
+ol.picks{list-style:none;margin:0;padding:0}
+.pick{display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 10px;padding:12px 16px 13px 10px;border-bottom:1px solid var(--line)}
+.pick:last-child{border-bottom:0}
+.rank{font:700 20px/1.25 var(--font-display);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.pick:nth-child(-n+3) .rank{color:var(--ink)}
+.l1{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.sel{font-weight:600;font-size:16px;line-height:1.3}
+.odds{font:600 14px/1 var(--font-display);letter-spacing:.04em;padding:3px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.mkt{font:600 11px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.l2{font-size:13px;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
+.l2 a{text-decoration:none;color:var(--ink)}
+.l2 a:hover{text-decoration:underline}
+.live{display:inline-block;font:600 10px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;padding:2px 5px;border-radius:4px;border:1px solid var(--line);color:var(--muted);vertical-align:1px}
+.bars{display:grid;grid-template-columns:auto minmax(0,1fr) 38px 46px;align-items:center;gap:5px 8px;margin-top:6px;font-variant-numeric:tabular-nums}
+.bars .lab{font-size:12px;color:var(--muted)}
+.trk{height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+.trk i{display:block;height:100%;border-radius:0 4px 4px 0;background:var(--c)}
+.pct{font-weight:600;font-size:14px;text-align:right}
+.mv{font-size:12px;font-weight:600;white-space:nowrap}
+.mv.up{color:var(--up)} .mv.down{color:var(--down)} .mv.flat{color:var(--muted);font-weight:500}
+.l3{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:7px;font-size:12px;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:var(--tag-bg);border:1px solid var(--line);font:600 11px/1.2 var(--font-display);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c)}
+.more-row{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:center}
+.msg{margin:0;padding:28px 18px;text-align:center;color:var(--muted);font-size:14px}
+.msg b{display:block;color:var(--ink);font:700 17px/1.3 var(--font-display);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.warnbox{padding:10px 14px;border-radius:12px;background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn);font-size:13px}
+
+/* Loading shimmer */
+.skel{height:96px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,transparent,var(--surface-2),transparent) 0 0/200% 100%;animation:sh 1.3s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* Notes */
+.notes{padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);font-size:13px;color:var(--muted)}
+.notes h2{margin:0 0 6px;font:700 15px/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.notes dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 12px}
+.notes dt{font-weight:600;color:var(--ink)}
+.notes dd{margin:0}
+.notes p{margin:10px 0 0}
+.acct{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;font-size:13px;color:var(--muted)}
+.acct form{margin:0}
+
+@media (max-width:560px){
+  h1{font-size:24px}
+  .glance{grid-template-columns:1fr;gap:8px}
+  .tile{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"h big" "what big" "where big";column-gap:12px;align-items:center}
+  .tile h2{grid-area:h} .tile .big{grid-area:big;text-align:right} .tile .what{grid-area:what} .tile .where{grid-area:where}
+  .frow{flex-direction:column;gap:4px}
+  .flabel{width:auto;padding-top:0}
+  /* On phones the chips scroll sideways; the fade says there's more */
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-self:stretch;margin-right:-14px;padding-right:28px;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent)}
+  .chips::-webkit-scrollbar{display:none}
+  .bars{grid-template-columns:auto minmax(0,1fr) 36px 40px}
+  .pick{padding-right:14px}
+}
+@media (prefers-reduced-motion: reduce){.skel,.btn.busy .spin{animation:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">%</span>
+      <div>
+        <h1>Bets of the Day</h1>
+        <p>Where the public is betting at DraftKings today</p>
+      </div>
+    </div>
+    <a class="switch-app" href="/">Blackjack &rarr;</a>
+  </header>
+
+  <div class="status">
+    <span id="status" aria-live="polite">Loading today's splits&hellip;</span>
+    <button type="button" class="btn" id="refresh"><span class="spin" aria-hidden="true"></span>Refresh</button>
+  </div>
+
+  <div class="warnbox" id="warn" role="status" hidden></div>
+
+  <section class="filters" aria-label="Filters">
+    <div class="frow"><span class="flabel" id="lab-league">League</span><div class="chips" id="f-league" role="group" aria-labelledby="lab-league"></div></div>
+    <div class="frow"><span class="flabel" id="lab-market">Bet type</span><div class="chips" id="f-market" role="group" aria-labelledby="lab-market"></div></div>
+    <div class="frow"><span class="flabel" id="lab-sort">Rank by</span><div class="chips" id="f-sort" role="group" aria-labelledby="lab-sort"></div></div>
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="f-upcoming"> Hide games that have started</label>
+      <label class="toggle"><input type="checkbox" id="f-thin"> Include 100/0 splits (usually just a bet or two)</label>
+    </div>
+  </section>
+
+  <section class="glance" id="glance" aria-label="At a glance"></section>
+
+  <section class="board" aria-labelledby="board-title">
+    <div class="board-head">
+      <h2 id="board-title">Most backed</h2>
+      <div class="key" aria-hidden="true"><span style="--c:var(--s-bets)"><i></i>% of bets</span><span style="--c:var(--s-money)"><i></i>% of money</span></div>
+    </div>
+    <ol class="picks" id="picks"><li class="skel"></li><li class="skel"></li><li class="skel"></li></ol>
+    <div class="more-row" id="more-row" hidden><button type="button" class="btn" id="more">Show more</button></div>
+  </section>
+
+  <section class="notes" aria-label="How to read this">
+    <h2>How to read this</h2>
+    <dl>
+      <dt>% of bets</dt><dd>Share of all tickets on that bet that are on this side. This is what &ldquo;popular&rdquo; means here.</dd>
+      <dt>% of money</dt><dd>Share of the dollars wagered on this side.</dd>
+      <dt>Big-money side</dt><dd>Money is 10+ points ahead of bets: fewer people, bigger bets.</dd>
+      <dt>Public side</dt><dd>Bets are 10+ points ahead of money: lots of smaller bets.</dd>
+      <dt>&#9650; / &#9660;</dt><dd>How far the % of bets has moved since this board first saw that game today.</dd>
+    </dl>
+    <p>Percentages are within each bet, not across the whole day, and DraftKings doesn't publish how many bets were placed, so a 90% side on a small college game may be only a handful of tickets. Splits of 100/0 are hidden unless you include them. Moneylines are left out by default because heavy favourites take 95%+ of tickets almost every game; tap Moneyline or All to see them.</p>
+    <p>Data: <a href="https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/" target="_blank" rel="noopener noreferrer">DraftKings Network betting splits</a>. Unofficial; for information only.</p>
+  </section>
+
+  <!--account-->
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const PAGE = 30;
+  const GAP = 10;            // points between money and bets that earn a tag
+  const POLL_MS = 3 * 60e3;  // check for new numbers this often while the page is open
+
+  const isSpread = t => /spread|puck line|run line|handicap/i.test(t);
+  const isTotal = t => /total|over|under/i.test(t);
+  // Moneylines are off by default: heavy favourites get 95%+ of tickets almost every game.
+  const MARKETS = [
+    { id: 'st', label: 'Spread + Total', test: t => isSpread(t) || isTotal(t) },
+    { id: 'spread', label: 'Spread', test: isSpread },
+    { id: 'total', label: 'Total', test: isTotal },
+    { id: 'ml', label: 'Moneyline', test: t => /money ?line/i.test(t) },
+    { id: 'all', label: 'All' },
+  ];
+  // Each ranking picks one side of every bet, then sorts by its score.
+  const SORTS = [
+    { id: 'bets', label: 'Most bets', title: 'Most backed', score: s => s.bets, tie: s => s.handle },
+    { id: 'money', label: 'Most money', title: 'Most money', score: s => s.handle, tie: s => s.bets },
+    { id: 'gap', label: 'Big money', title: 'Money ahead of bets', score: s => s.handle - s.bets, tie: s => s.handle, min: 1 },
+    { id: 'moves', label: 'Biggest moves', title: 'Gaining support today', score: s => s.bets - s.firstBets, tie: s => s.bets, min: 1 },
+  ];
+
+  const KEY = 'bets-of-the-day:v2';
+  const state = { league: 'all', market: 'st', sort: 'bets', upcoming: false, thin: false, shown: PAGE };
+  try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}'), { shown: PAGE }); } catch (e) {}
+  const save = () => { try { const { shown, ...keep } = state; localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {} };
+
+  let data = null;
+  let lastLoad = 0;
+
+  // ---- Formatting ------------------------------------------------------------------
+  const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+  const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
+  const clock = iso => iso ? timeFmt.format(new Date(iso)) : '';
+  const kickoff = g => {
+    if (!g.start) return g.when;
+    const d = new Date(g.start), today = new Date().toDateString() === d.toDateString();
+    return `${today ? '' : dayFmt.format(d) + ' '}${timeFmt.format(d)}`;
+  };
+  const started = g => g.start && Date.parse(g.start) <= Date.now();
+  const odds = o => o ? String(o).replace(/^-/, '−') : '';
+
+  // ---- Picking and ranking ---------------------------------------------------------------
+  function picks() {
+    if (!data) return [];
+    const sort = SORTS.find(s => s.id === state.sort) || SORTS[0];
+    const mkt = MARKETS.find(m => m.id === state.market);
+    const out = [];
+    for (const g of data.games) {
+      if (state.league !== 'all' && g.league !== state.league) continue;
+      if (state.upcoming && started(g)) continue;
+      for (const m of g.markets) {
+        if (mkt && mkt.test && !mkt.test(m.type)) continue;
+        // A 100/0 split almost always means only a bet or two so far.
+        if (!state.thin && m.sides.some(x => x.bets >= 100)) continue;
+        let best = null;
+        for (const s of m.sides) {
+          const v = sort.score(s), t = sort.tie(s);
+          if (!best || v > best.v || (v === best.v && t > best.t)) best = { s, v, t };
+        }
+        if (!best || (sort.min && best.v < sort.min)) continue;
+        out.push({ g, m, s: best.s, v: best.v, t: best.t, others: m.sides.filter(x => x !== best.s) });
+      }
+    }
+    out.sort((a, b) => b.v - a.v || b.t - a.t);
+    return out;
+  }
+
+  // ---- Rendering --------------------------------------------------------------------------
+  function chipRow(el, items, current, onPick) {
+    el.innerHTML = items.map(it => `<button type="button" class="chip" data-id="${esc(it.id)}" aria-pressed="${it.id === current}">${esc(it.label)}${it.n != null ? ` <small>${it.n}</small>` : ''}</button>`).join('');
+    el.onclick = e => { const b = e.target.closest('.chip'); if (b) onPick(b.dataset.id); };
+  }
+
+  function renderFilters() {
+    const leagues = data ? data.leagues : [];
+    if (state.league !== 'all' && data && !leagues.some(l => l.name === state.league)) state.league = 'all';
+    const total = data ? data.games.length : null;
+    chipRow($('f-league'), [{ id: 'all', label: 'All', n: total }, ...leagues.map(l => ({ id: l.name, label: l.short, n: l.games }))], state.league, id => set({ league: id }));
+    chipRow($('f-market'), MARKETS, state.market, id => set({ market: id }));
+    chipRow($('f-sort'), SORTS, state.sort, id => set({ sort: id }));
+    $('f-upcoming').checked = state.upcoming;
+    $('f-thin').checked = state.thin;
+  }
+
+  function moveHtml(s) {
+    const d = s.bets - s.firstBets;
+    if (!Number.isFinite(d)) return '<span></span>';
+    if (d === 0) return '<span></span>';
+    const since = s.firstAt ? ` since ${clock(s.firstAt)}` : '';
+    return `<span class="mv ${d > 0 ? 'up' : 'down'}" title="${d > 0 ? 'Up' : 'Down'} ${Math.abs(d)} points${since}">${d > 0 ? '&#9650;' : '&#9660;'}${Math.abs(d)}<span class="vh"> points${esc(since)}</span></span>`;
+  }
+
+  function tagHtml(s) {
+    const gap = s.handle - s.bets;
+    if (gap >= GAP) return `<span class="tag" style="--c:var(--s-money)">Big-money side +${gap}</span>`;
+    if (-gap >= GAP) return `<span class="tag" style="--c:var(--s-bets)">Public side +${-gap}</span>`;
+    return '';
+  }
+
+  function rowHtml(p, i) {
+    const { g, m, s, others } = p;
+    const game = g.url ? `<a href="${esc(g.url)}" target="_blank" rel="noopener noreferrer">${esc(g.title)}</a>` : esc(g.title);
+    const vs = others.map(o => `${esc(o.name)}${o.odds ? ' ' + esc(odds(o.odds)) : ''} (${o.bets}% bets, ${o.handle}% money)`).join(' · ');
+    return `<li class="pick">
+      <div class="rank">${i + 1}</div>
+      <div>
+        <div class="l1"><span class="sel">${esc(s.name)}</span>${s.odds ? `<span class="odds">${esc(odds(s.odds))}</span>` : ''}<span class="mkt">${esc(m.type)}</span></div>
+        <div class="l2">${game} · ${esc(g.leagueShort)} · ${esc(kickoff(g))}${started(g) ? ' <span class="live">Started</span>' : ''}</div>
+        <div class="bars">
+          <span class="lab">Bets</span><span class="trk" style="--c:var(--s-bets)"><i style="width:${s.bets}%"></i></span><span class="pct">${s.bets}%</span>${moveHtml(s)}
+          <span class="lab">Money</span><span class="trk" style="--c:var(--s-money)"><i style="width:${s.handle}%"></i></span><span class="pct">${s.handle}%</span><span></span>
+        </div>
+        <div class="l3">${tagHtml(s)}<span>vs ${vs}</span></div>
+      </div>
+    </li>`;
+  }
+
+  function tile(title, value, unit, p, extra) {
+    if (!p) return `<div class="tile empty"><h2>${esc(title)}</h2><div class="big">&ndash;</div><div class="what">${esc(extra || 'Nothing yet')}</div><div class="where"></div></div>`;
+    return `<div class="tile"><h2>${esc(title)}</h2><div class="big">${value}<small>${esc(unit)}</small></div>
+      <div class="what">${esc(p.s.name)}${p.s.odds ? ' ' + esc(odds(p.s.odds)) : ''}</div><div class="where">${esc(p.g.title)} · ${esc(p.g.leagueShort)}</div></div>`;
+  }
+
+  function renderGlance() {
+    if (!data) { $('glance').innerHTML = ''; return; }
+    const keep = state.sort;
+    const top = id => { state.sort = id; const r = picks()[0]; state.sort = keep; return r; };
+    const a = top('bets'), b = top('gap'), c = top('moves');
+    const since = data.trackingSince ? `Moves show after the next update (tracking since ${clock(data.trackingSince)})` : '';
+    $('glance').innerHTML =
+      tile('Most backed', a ? a.s.bets : '', '% of bets', a) +
+      tile('Biggest money gap', b ? '+' + (b.s.handle - b.s.bets) : '', 'pts', b) +
+      tile('Biggest move today', c ? '&#9650;' + (c.s.bets - c.s.firstBets) : '', 'pts', c, since);
+  }
+
+  function renderList() {
+    const sort = SORTS.find(s => s.id === state.sort) || SORTS[0];
+    $('board-title').textContent = sort.title;
+    const list = picks();
+    const el = $('picks');
+    if (!data) return;
+    if (!list.length) {
+      const why = state.sort === 'moves'
+        ? `<b>No moves yet</b>This compares against the first numbers seen today${data.trackingSince ? ` (${esc(clock(data.trackingSince))})` : ''}. Check back after the next update.`
+        : data.games.length ? '<b>Nothing matches</b>Try another league or bet type.' : '<b>No splits yet today</b>DraftKings hasn\'t posted betting splits for today\'s games yet.';
+      el.innerHTML = `<li><p class="msg">${why}</p></li>`;
+      $('more-row').hidden = true;
+      return;
+    }
+    el.innerHTML = list.slice(0, state.shown).map(rowHtml).join('');
+    $('more-row').hidden = list.length <= state.shown;
+    $('more').textContent = `Show more (${list.length - state.shown} left)`;
+  }
+
+  function renderStatus() {
+    if (!data) return;
+    const n = data.games.length;
+    const upd = data.sourceUpdatedAt || data.fetchedAt;
+    $('status').innerHTML = `<b>${n}</b> game${n === 1 ? '' : 's'} today · DraftKings updated <b>${esc(clock(upd))}</b>`;
+    const warn = data.errors && data.errors.length ? `Some leagues didn't load (${data.errors.map(esc).join('; ')}).` : '';
+    $('warn').textContent = warn;
+    $('warn').hidden = !warn;
+  }
+
+  function render() { renderFilters(); renderStatus(); renderGlance(); renderList(); }
+
+  function set(patch) {
+    Object.assign(state, patch, { shown: PAGE });
+    save();
+    render();
+  }
+
+  // ---- Loading -------------------------------------------------------------------------------
+  async function load(fresh) {
+    const btn = $('refresh');
+    btn.disabled = true; btn.classList.add('busy');
+    try {
+      const res = await fetch('/api/bets' + (fresh ? '?fresh=1' : ''), { credentials: 'same-origin', cache: 'no-store' });
+      if (res.status === 401) { location.href = '/login'; return; }
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body || !body.games) throw new Error((body && body.error) || `Server answered ${res.status}`);
+      data = body;
+      lastLoad = Date.now();
+      render();
+    } catch (err) {
+      if (!data) {
+        $('picks').innerHTML = `<li><p class="msg"><b>Couldn't load the splits</b>${esc(err.message)}. Try Refresh in a minute.</p></li>`;
+        $('status').textContent = 'Not loaded';
+      } else {
+        $('warn').textContent = `Couldn't update just now (${err.message}). Showing the last numbers.`;
+        $('warn').hidden = false;
+      }
+    } finally {
+      btn.disabled = false; btn.classList.remove('busy');
+    }
+  }
+
+  $('refresh').addEventListener('click', () => load(true));
+  $('more').addEventListener('click', () => { state.shown += PAGE; renderList(); });
+  $('f-upcoming').addEventListener('change', e => set({ upcoming: e.target.checked }));
+  $('f-thin').addEventListener('change', e => set({ thin: e.target.checked }));
+  setInterval(() => { if (!document.hidden) load(false); }, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastLoad > POLL_MS) load(false); });
+
+  renderFilters();
+  load(false);
+})();
+</script>

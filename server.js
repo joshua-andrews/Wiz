@@ -1,6 +1,7 @@
 'use strict';
 /*
-  Basic Strategy Flashcards: a tiny web server that puts a login in front of index.html.
+  Basic Strategy Flashcards + Bets of the Day: a tiny web server that puts a login in front of
+  index.html (blackjack drills) and bets.html (today's most popular bets, from bets.js).
   No dependencies, only Node's built-in modules.
 
   Settings (Railway → service → Variables):
@@ -13,6 +14,8 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const zlib = require('node:zlib');
+const bets = require('./bets.js');
 
 const PORT = Number(process.env.PORT) || 3000;
 const COOKIE = 'bsf_session';
@@ -80,6 +83,7 @@ setInterval(() => { const now = Date.now(); for (const [ip, f] of fails) if (now
 const file = f => fs.readFileSync(path.join(__dirname, f));
 const APP_HTML = file('index.html').toString('utf8');
 const LOGIN_HTML = file('login.html').toString('utf8');
+const BETS_HTML = file('bets.html').toString('utf8');
 const PUBLIC = {
   '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'],
   '/icons/favicon.svg': ['icons/favicon.svg', 'image/svg+xml'],
@@ -96,8 +100,13 @@ const loginPage = (error, username) => LOGIN_HTML
   .replace('{{error}}', error ? `<p class="err" role="alert">${esc(error)}</p>` : '')
   .replace('{{username}}', esc(username || ''));
 const appPage = name => APP_HTML.replace('<!--account-->',
-  `<div class="panel"><h2>Account</h2><p class="lede">Signed in as <b>${esc(name)}</b>.</p>`
+  `<div class="panel"><h2>Bets of the Day</h2><p class="lede">Today's most popular bets at DraftKings, with % of bets and % of money.</p>`
+  + `<div class="reset-row"><a class="btn" href="/bets" style="text-decoration:none;color:inherit">Open the bets board &rarr;</a></div></div>`
+  + `<div class="panel"><h2>Account</h2><p class="lede">Signed in as <b>${esc(name)}</b>.</p>`
   + `<form method="post" action="/logout" class="reset-row"><button type="submit" class="btn">Log out</button></form></div>`);
+const betsPage = name => BETS_HTML.replace('<!--account-->',
+  `<div class="acct"><span>Signed in as <b>${esc(name)}</b></span>`
+  + `<form method="post" action="/logout"><button type="submit" class="btn">Log out</button></form></div>`);
 
 // ---- HTTP helpers -------------------------------------------------------------
 const CSP = [
@@ -124,6 +133,13 @@ function send(req, res, status, body, type, extra = {}) {
     ...extra,
   });
   res.end(req.method === 'HEAD' ? undefined : body);
+}
+function sendJson(req, res, status, value) {
+  const body = Buffer.from(JSON.stringify(value));
+  if (/\bgzip\b/.test(String(req.headers['accept-encoding'] || '')) && body.length > 1024) {
+    return send(req, res, status, zlib.gzipSync(body), 'application/json; charset=utf-8', { 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding' });
+  }
+  return send(req, res, status, body, 'application/json; charset=utf-8');
 }
 const redirect = (req, res, to, extra = {}) => send(req, res, 303, '', 'text/plain; charset=utf-8', { Location: to, ...extra });
 const html = 'text/html; charset=utf-8';
@@ -189,8 +205,19 @@ const server = http.createServer(async (req, res) => {
       return send(req, res, 200, loginPage('', ''), html);
     }
     if (pathname === '/logout') return redirect(req, res, '/login', { 'Set-Cookie': sessionCookie(req, '', 0) });
+    if (pathname === '/api/bets' && reading) {
+      if (!user) return sendJson(req, res, 401, { error: 'Signed out' });
+      try {
+        const force = new URL(req.url, 'http://local').searchParams.get('fresh') === '1';
+        return sendJson(req, res, 200, await bets.getBoard({ force }));
+      } catch (err) {
+        console.error('Bets board failed:', err.message);
+        return sendJson(req, res, 502, { error: "Couldn't reach DraftKings right now" });
+      }
+    }
     if (!user) return redirect(req, res, '/login');
     if ((pathname === '/' || pathname === '/index.html') && reading) return send(req, res, 200, appPage(user), html);
+    if (pathname === '/bets' && reading) return send(req, res, 200, betsPage(user), html);
     return send(req, res, 404, 'Not found', 'text/plain; charset=utf-8');
   } catch (err) {
     console.error(err);
