@@ -133,7 +133,12 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 
 /* Music toggle: the bars pulse faster and change colour with the mood */
 .music{--heat:var(--muted);--eq:.6s;display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font:600 12px/1.2 var(--font-display);letter-spacing:.07em;text-transform:uppercase;cursor:pointer;-webkit-user-select:none;user-select:none}
-.music.on{color:var(--ink);border-color:var(--heat)}
+.music{min-height:32px;padding:5px 12px 5px 10px;color:var(--ink)}
+.music.on{border-color:var(--heat)}
+.mi{flex:none;width:13px;height:13px;fill:currentColor}
+.i-pause,.music:not(.on) .eq{display:none}
+.music.on .i-play{display:none}
+.music.on .i-pause{display:block}
 .music[data-tier="0"]{--heat:var(--a-split);--eq:1.1s}
 .music[data-tier="1"]{--heat:var(--a-sur);--eq:.85s}
 .music[data-tier="2"]{--heat:var(--a-double);--eq:.6s}
@@ -355,7 +360,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
       <div class="score" id="score"></div>
       <div class="meta-right">
         <div class="chips" id="chips"></div>
-        <button type="button" class="music" id="musicBtn" aria-pressed="false" data-tier="2"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="musicLabel">Music</span></button>
+        <button type="button" class="music" id="musicBtn" aria-pressed="false" aria-label="Play music" data-tier="2"><svg class="mi i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.2-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg><svg class="mi i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="musicLabel">Play music</span></button>
       </div>
     </div>
     <p class="deck-note" id="deckNote" hidden></p>
@@ -422,7 +427,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
     <div class="panel">
       <h2>Music</h2>
       <p class="lede">An adaptive soundtrack. It speeds up and builds as your streak grows, and turns dark and tense when you miss.</p>
-      <label class="opt" for="optMusic"><input class="switch" type="checkbox" id="optMusic"><span><b>Play music</b><small>Also on the Music button above the table, or press M. If you don't hear it on iPhone, check that silent mode is off.</small></span></label>
+      <label class="opt" for="optMusic"><input class="switch" type="checkbox" id="optMusic"><span><b>Play music</b><small>Music only plays after you press Play, here or above the table (or press M). If you don't hear it on iPhone, check that silent mode is off.</small></span></label>
       <div class="vol-row"><label for="optVol">Volume</label><input type="range" id="optVol" min="0" max="100" step="1"></div>
     </div>
 
@@ -966,7 +971,7 @@ const Music = (() => {
 
   // Settings and stats live in this browser only.
   const STORE = 'basic-strategy-flashcards-v1';
-  const DEFAULTS = {das:true, sur:false, multi:true, showTotal:true, music:true, vol:60, focus:'all', cats:{P:true, S:true, H:true, I:true}};
+  const DEFAULTS = {das:true, sur:false, multi:true, showTotal:true, vol:60, focus:'all', cats:{P:true, S:true, H:true, I:true}};
   let settings = JSON.parse(JSON.stringify(DEFAULTS));
   let stats = {};
   try {
@@ -1284,32 +1289,20 @@ const Music = (() => {
     b.classList.toggle('on', st.on);
     b.setAttribute('aria-pressed', String(st.on));
     b.dataset.tier = String(st.tier);
-    b.setAttribute('aria-label', st.on ? `Music on, mood: ${st.name}. Turn music off` : 'Turn music on');
-    $('#musicLabel').textContent = st.on ? st.name : 'Music';
+    b.setAttribute('aria-label', st.on ? `Pause music (mood: ${st.name})` : 'Play music');
+    $('#musicLabel').textContent = st.on ? st.name : 'Play music';
     $('#optMusic').checked = st.on;
   }
   function setMusic(want){
     if (want && !Music.start()) want = false;
     if (!want) Music.stop();
-    settings.music = want; save(); renderMusic();
+    renderMusic();
   }
   $('#optMusic').addEventListener('change', e => setMusic(e.target.checked));
   $('#optVol').value = String(settings.vol);
   Music.setVolume(settings.vol / 100);
   $('#optVol').addEventListener('input', e => { settings.vol = Number(e.target.value); Music.setVolume(settings.vol / 100); save(); });
-  // Browsers only allow sound after a tap or key press, so music that was left on starts with the first one.
-  if (settings.music){
-    const resume = e => {
-      document.removeEventListener('click', resume, true);
-      document.removeEventListener('keydown', resume, true);
-      if (e.type === 'keydown' && e.key.toLowerCase() === 'm') return;
-      if (e.target.closest && e.target.closest('#musicBtn, label[for="optMusic"]')) return;
-      if (!Music.state().on) setMusic(true);
-    };
-    document.addEventListener('click', resume, true);
-    document.addEventListener('keydown', resume, true);
-  }
-  renderMusic();
+  renderMusic(); // Music stays off until someone presses Play.
 
   nextCard();
   requestAnimationFrame(() => $('#felt').classList.add('anim'));
