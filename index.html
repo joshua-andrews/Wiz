@@ -340,9 +340,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
         <small>Weak spots are hands you missed last time, or get right less than 70% of the time. Missed hands also come back more often in the normal deck.</small>
       </div>
       <label class="opt" for="optMulti"><input class="switch" type="checkbox" id="optMulti"><span><b>Mix in 3-card hands</b><small>Hands where you've already hit, so you can't double. Tests the D versus Ds cells: double if allowed, otherwise hit or stand.</small></span></label>
-      <label class="opt" for="optTotal"><input class="switch" type="checkbox" id="optTotal"><span><b>Show hand total</b><small>Turn off to practice reading soft hands yourself. The total still shows after you answer.</small></span></label>
-      <label class="opt" for="optAuto"><input class="switch" type="checkbox" id="optAuto"><span><b>Auto-advance when correct</b><small>Deals the next hand after a second. Misses always wait for you.</small></span></label>
-    </div>
+      <label class="opt" for="optTotal"><input class="switch" type="checkbox" id="optTotal"><span><b>Show hand total</b><small>Turn off to practice reading soft hands yourself. The total still shows after you answer.</small></span></label>    </div>
 
     <div class="panel">
       <h2>Progress</h2>
@@ -564,7 +562,7 @@ const BS = (() => {
 
   // Settings and stats live in this browser only.
   const STORE = 'basic-strategy-flashcards-v1';
-  const DEFAULTS = {das:true, sur:true, multi:true, showTotal:true, auto:true, focus:'all', cats:{P:true, S:true, H:true, I:true}};
+  const DEFAULTS = {das:true, sur:true, multi:true, showTotal:true, focus:'all', cats:{P:true, S:true, H:true, I:true}};
   let settings = JSON.parse(JSON.stringify(DEFAULTS));
   let stats = {};
   try {
@@ -575,7 +573,7 @@ const BS = (() => {
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify({settings, stats})); } catch (e) {} };
 
   let session = {n:0, c:0, streak:0, best:0};
-  let current = null, recent = [], deckNote = '', autoTimer = 0, view = 'drill';
+  let current = null, recent = [], deckNote = '', view = 'drill';
 
   const isWeak = id => { const s = stats[id]; return !!s && (s.last === false || (s.n >= 3 && s.c / s.n < 0.7)); };
   const weight = c => {
@@ -605,7 +603,6 @@ const BS = (() => {
   }
 
   function deal(cell, forced){
-    clearTimeout(autoTimer);
     const sp = {...cell};
     sp.n = (!forced && settings.multi && (sp.kind === 'S' || sp.kind === 'H') && Math.random() < 0.25) ? 3 : 2;
     const hand = makeHand(sp);
@@ -742,7 +739,6 @@ const BS = (() => {
     updateTotal(); renderPad(); renderVerdict(); renderMeta();
     const nb = $('#nextBtn');
     if (nb) nb.focus({preventScroll:true});
-    if (ok && settings.auto) autoTimer = setTimeout(() => { if (view === 'drill' && current.answered) nextCard(); }, 1000);
   }
 
   // Chart view
@@ -800,12 +796,11 @@ const BS = (() => {
     for (const name of ['drill', 'chart', 'setup']) $('#view-' + name).hidden = name !== v;
     document.querySelectorAll('.tabs [data-view]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
     if (v === 'chart') renderChart();
-    if (v !== 'drill') clearTimeout(autoTimer);
     if (v === 'setup') { $('#resetDone').hidden = true; $('#setupMsg').hidden = true; }
   }
 
   // Setup bindings
-  const OPT = {optDas:'das', optSur:'sur', optMulti:'multi', optTotal:'showTotal', optAuto:'auto'};
+  const OPT = {optDas:'das', optSur:'sur', optMulti:'multi', optTotal:'showTotal'};
   for (const [id, key] of Object.entries(OPT)){
     const el = $('#' + id);
     el.checked = !!settings[key];
