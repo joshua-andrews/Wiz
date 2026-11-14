@@ -32,7 +32,7 @@
   --s-bets:#1f9a5c;   /* share of bets */
   --s-money:#3b82d6;  /* share of money */
   --up:#15784a; --down:#bf3328; --warn:#9a5b00; --warn-bg:#fff4da; --warn-line:#efd69c;
-  --tag-bg:#eef2f0;
+  --tag-bg:#eef2f0; --good-bg:#dcf2e4; --bad-bg:#fae2de; --tick:#14201a;
   --font-display:'Barlow Condensed','Arial Narrow','Roboto Condensed',sans-serif;
   --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
@@ -42,6 +42,7 @@
     --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.58); --rail:#24180f;
     --track:#223029; --s-bets:#2aa565; --s-money:#4a90db;
     --up:#55c486; --down:#f07065; --warn:#f0c25e; --warn-bg:#2a2311; --warn-line:#4b3e18; --tag-bg:#1f2a25;
+    --good-bg:#11301f; --bad-bg:#3a1714; --tick:#e3ebe6;
     color-scheme:dark;
   }
 }
@@ -50,6 +51,7 @@
   --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.58); --rail:#24180f;
   --track:#223029; --s-bets:#2aa565; --s-money:#4a90db;
   --up:#55c486; --down:#f07065; --warn:#f0c25e; --warn-bg:#2a2311; --warn-line:#4b3e18; --tag-bg:#1f2a25;
+  --good-bg:#11301f; --bad-bg:#3a1714; --tick:#e3ebe6;
   color-scheme:dark;
 }
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -145,6 +147,47 @@ ol.picks{list-style:none;margin:0;padding:0}
 .skel{height:96px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,transparent,var(--surface-2),transparent) 0 0/200% 100%;animation:sh 1.3s linear infinite}
 @keyframes sh{to{background-position:-200% 0}}
 
+/* Views */
+.view{display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);align-self:flex-start}
+.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font:600 15px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+
+/* Track record */
+.verdict{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:16px;background:radial-gradient(120% 100% at 50% 0%,var(--felt),var(--felt-deep));border:1px solid color-mix(in srgb,var(--felt-deep) 70%,#000);color:var(--felt-ink)}
+.verdict .eyebrow{font:600 11px/1.2 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--felt-dim)}
+.verdict h2{margin:0;font:700 26px/1.1 var(--font-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.verdict p{margin:0;font-size:14px;max-width:62ch}
+.vnums{display:flex;flex-wrap:wrap;gap:8px 28px}
+.vnum{display:flex;flex-direction:column}
+.vnum b{font:700 32px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.vnum span{font-size:12px;color:var(--felt-dim)}
+.verdict .fine{font-size:12px;color:var(--felt-dim)}
+.sub{font-size:12px;color:var(--muted)}
+.tscroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
+.tbl th{padding:9px 12px;text-align:right;font:600 11px/1.2 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+.tbl th:first-child,.tbl td:first-child{text-align:left;padding-left:16px}
+.tbl td:first-child{white-space:normal;min-width:150px}
+.tbl td small{display:block;font-size:12px;color:var(--muted)}
+.tbl .thin td{color:var(--muted)}
+.tbl .barcell{width:34%;min-width:120px}
+.pos{color:var(--up);font-weight:600} .neg{color:var(--down);font-weight:600}
+.wbar{position:relative;height:10px;border-radius:5px;background:var(--track)}
+.wbar i{position:absolute;inset:0 auto 0 0;border-radius:5px 0 0 5px;background:var(--s-money)}
+.wbar.b i{background:var(--s-bets)}
+.wbar u{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--tick);border-radius:1px}
+.graded{list-style:none;margin:0;padding:0}
+.graded li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:2px 12px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.graded li:last-child{border-bottom:0}
+.res{grid-row:span 3;align-self:start;text-align:center;padding:4px 0;border-radius:7px;font:700 13px/1.2 var(--font-display);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted)}
+.res.W{background:var(--good-bg);color:var(--up);border-color:transparent}
+.res.L{background:var(--bad-bg);color:var(--down);border-color:transparent}
+.graded .gl1{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.graded .gl2,.graded .gl3{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+
 /* Notes */
 .notes{padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);font-size:13px;color:var(--muted)}
 .notes h2{margin:0 0 6px;font:700 15px/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
@@ -168,6 +211,14 @@ ol.picks{list-style:none;margin:0;padding:0}
   .chips::-webkit-scrollbar{display:none}
   .bars{grid-template-columns:auto minmax(0,1fr) 36px 40px}
   .pick{padding-right:14px}
+  .tbl{font-size:13px}
+  .tbl th,.tbl td{padding:9px 6px}
+  .tbl th:first-child,.tbl td:first-child{padding-left:14px}
+  .tbl th:last-child,.tbl td:last-child{padding-right:14px}
+  .tbl td:first-child{min-width:0}
+  .tbl .opt{display:none}
+  .tbl .barcell{min-width:52px}
+  .verdict h2{font-size:23px}
 }
 @media (prefers-reduced-motion: reduce){.skel,.btn.busy .spin{animation:none}}
 </style>
@@ -184,6 +235,12 @@ ol.picks{list-style:none;margin:0;padding:0}
     <!-- server-only:start --><a class="switch-app" href="/">Blackjack &rarr;</a><!-- server-only:end -->
   </header>
 
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Views" hidden>
+    <button type="button" role="tab" id="tab-today" aria-selected="true" aria-controls="view-today" data-view="today">Today</button>
+    <button type="button" role="tab" id="tab-record" aria-selected="false" aria-controls="view-record" data-view="record">Track record</button>
+  </nav>
+
+  <div class="view" id="view-today" role="tabpanel" aria-labelledby="tab-today">
   <div class="status">
     <span id="status" aria-live="polite">Loading today's splits&hellip;</span>
     <button type="button" class="btn" id="refresh"><span class="spin" aria-hidden="true"></span>Refresh</button>
@@ -224,6 +281,45 @@ ol.picks{list-style:none;margin:0;padding:0}
     <p>Percentages are within each bet, not across the whole day, and DraftKings doesn't publish how many bets were placed, so a 90% side on a small college game may be only a handful of tickets. Splits of 100/0 are hidden unless you include them. Moneylines are left out by default because heavy favourites take 95%+ of tickets almost every game; tap Moneyline or All to see them.</p>
     <p>Data: <a href="https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/" target="_blank" rel="noopener noreferrer">DraftKings Network betting splits</a>. Unofficial; for information only.</p>
   </section>
+  </div>
+
+  <div class="view" id="view-record" role="tabpanel" aria-labelledby="tab-record" hidden>
+    <section class="verdict" id="verdict" aria-live="polite"></section>
+
+    <section class="filters" aria-label="Track record filters">
+      <div class="frow"><span class="flabel" id="lab-rleague">League</span><div class="chips" id="r-league" role="group" aria-labelledby="lab-rleague"></div></div>
+      <div class="frow"><span class="flabel" id="lab-rmarket">Bet type</span><div class="chips" id="r-market" role="group" aria-labelledby="lab-rmarket"></div></div>
+      <div class="frow"><span class="flabel" id="lab-rmeasure">Split by</span><div class="chips" id="r-measure" role="group" aria-labelledby="lab-rmeasure"></div></div>
+      <div class="toggles"><label class="toggle"><input type="checkbox" id="r-thin"> Include 100/0 splits (usually just a bet or two)</label></div>
+    </section>
+
+    <section class="board" aria-labelledby="strat-title">
+      <div class="board-head"><h2 id="strat-title">If you'd bet every one</h2><span class="sub">1 unit per bet, at the odds saved before kickoff</span></div>
+      <div class="tscroll"><table class="tbl" id="strat"></table></div>
+    </section>
+
+    <section class="board" aria-labelledby="curve-title">
+      <div class="board-head"><h2 id="curve-title">Win rate by % of money</h2><span class="sub">Bar: how often it won. Line: how often it needed to win to break even.</span></div>
+      <div class="tscroll"><table class="tbl" id="curve"></table></div>
+    </section>
+
+    <section class="board" aria-labelledby="recent-title">
+      <div class="board-head"><h2 id="recent-title">Recently graded</h2><span class="sub">The side with more money on each bet</span></div>
+      <ol class="graded" id="recent"></ol>
+      <div class="more-row" id="rmore-row" hidden><button type="button" class="btn" id="rmore">Show more</button></div>
+    </section>
+
+    <section class="notes" aria-label="How this is worked out">
+      <h2>How this is worked out</h2>
+      <dl>
+        <dt>Saved splits</dt><dd>Four times a day the page saves the latest % of bets, % of money and odds for every game that hasn't started. The last save before kickoff is the one graded.</dd>
+        <dt>Grading</dt><dd>Final scores come from ESPN. Each side is marked won, lost or push at the saved line. Postponed games don't count.</dd>
+        <dt>Needed</dt><dd>The win rate that breaks even at the saved odds. At &minus;110 that's 52.4%. A side that wins more often than it needs is making money.</dd>
+        <dt>ROI</dt><dd>Profit per unit staked if you'd bet 1 unit on every one.</dd>
+      </dl>
+      <p>Favourites win more often but pay less, so raw win rate alone can't answer the question. Comparing it with the break-even rate can. A real edge is usually a few points, which takes several hundred bets to tell apart from luck.</p>
+    </section>
+  </div>
 
   <!--account-->
 </div>
@@ -257,11 +353,13 @@ ol.picks{list-style:none;margin:0;padding:0}
   ];
 
   const KEY = 'bets-of-the-day:v2';
-  const state = { league: 'all', market: 'st', sort: 'bets', upcoming: false, thin: false, shown: PAGE };
-  try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}'), { shown: PAGE }); } catch (e) {}
-  const save = () => { try { const { shown, ...keep } = state; localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {} };
+  const state = { league: 'all', market: 'st', sort: 'bets', upcoming: false, thin: false, shown: PAGE,
+    rleague: 'all', rmarket: 'st', rmeasure: 'h', rshown: 20 };
+  try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}'), { shown: PAGE, rshown: 20 }); } catch (e) {}
+  const save = () => { try { const { shown, rshown, ...keep } = state; localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {} };
 
   let data = null;
+  let record = null;   // saved bets and graded results (artifact only)
   let lastLoad = 0;
   let STATIC = false;
 
@@ -402,10 +500,202 @@ ol.picks{list-style:none;margin:0;padding:0}
     $('warn').hidden = !warn;
   }
 
-  function render() { renderFilters(); renderStatus(); renderGlance(); renderList(); }
+
+  // ---- Track record ----------------------------------------------------------------------
+  // A graded bet: { id, d, st, L (league), l (short), t (type), k (ml|spread|total), g (game), sc (final score),
+  //                 s: [[name, odds, % bets, % money, result W|L|P|V], ...] }
+  const RMARKETS = [
+    { id: 'st', label: 'Spread + Total', test: k => k === 'spread' || k === 'total' },
+    { id: 'spread', label: 'Spread', test: k => k === 'spread' },
+    { id: 'total', label: 'Total', test: k => k === 'total' },
+    { id: 'ml', label: 'Moneyline', test: k => k === 'ml' },
+    { id: 'all', label: 'All', test: () => true },
+  ];
+  const MEASURES = [{ id: 'h', label: '% of money', col: 3 }, { id: 'b', label: '% of bets', col: 2 }];
+  const pct = (x, d = 1) => x == null ? '&ndash;' : (x * 100).toFixed(d) + '%';
+  const signed = (x, d = 1) => x == null ? '&ndash;' : `<span class="${x > 0 ? 'pos' : x < 0 ? 'neg' : ''}">${x > 0 ? '+' : x < 0 ? '&minus;' : ''}${Math.abs(x * 100).toFixed(d)}%</span>`;
+  // Profit on a 1-unit winning bet at American odds
+  const payout = o => {
+    const t = String(o || '').replace(/−/g, '-').trim();
+    if (/^even$/i.test(t)) return 1;
+    const n = Number(t);
+    if (!Number.isFinite(n) || Math.abs(n) < 100) return null;
+    return n > 0 ? n / 100 : 100 / -n;
+  };
+  function tally(items) {           // items: [{ o: odds, r: 'W'|'L'|'P'|'V' }]
+    let w = 0, l = 0, p = 0, units = 0, exp = 0, v = 0;
+    for (const x of items) {
+      if (x.r === 'P') { p++; continue; }
+      if (x.r !== 'W' && x.r !== 'L') continue;
+      const pay = payout(x.o);
+      if (pay == null) continue;
+      const q = 1 / (1 + pay);      // break-even win rate at these odds
+      if (x.r === 'W') { w++; units += pay; } else { l++; units -= 1; }
+      exp += q; v += q * (1 - q);
+    }
+    const n = w + l;
+    return { n, w, l, p, win: n ? w / n : null, need: n ? exp / n : null, roi: n ? units / n : null, z: v ? (w - exp) / Math.sqrt(v) : 0 };
+  }
+  const topBy = (arr, f) => {
+    let best = null, tie = false;
+    for (const x of arr) { const v = f(x); if (!best || v > best.v) { best = { x, v }; tie = false; } else if (v === best.v) tie = true; }
+    return best && !tie ? best.x : null;
+  };
+  const side = s => ({ name: s[0], o: s[1], b: s[2], h: s[3], r: s[4] });
+  const STRATS = [
+    { label: 'Side with more money', pick: rec => topBy(rec.s, s => s[3]) },
+    { label: 'Side with more bets', pick: rec => topBy(rec.s, s => s[2]) },
+    { label: 'Big-money side', note: 'Money 10+ points ahead of bets', pick: rec => { const c = rec.s.filter(s => s[3] - s[2] >= 10); return c.length ? topBy(c, s => s[3] - s[2]) : null; } },
+    { label: 'Public side', note: 'Bets 10+ points ahead of money', pick: rec => { const c = rec.s.filter(s => s[2] - s[3] >= 10); return c.length ? topBy(c, s => s[2] - s[3]) : null; } },
+    { label: 'Fade the public', note: 'The other side when one has 70%+ of bets', pick: rec => { if (rec.s.length !== 2) return null; const i = rec.s.findIndex(s => s[2] >= 70); return i < 0 ? null : rec.s[1 - i]; } },
+  ];
+
+  function graded() {
+    if (!record || !record.history) return [];
+    const mk = RMARKETS.find(m => m.id === state.rmarket) || RMARKETS[0];
+    return record.history.filter(h =>
+      (state.rleague === 'all' || h.L === state.rleague) && mk.test(h.k) &&
+      (state.thin || !h.s.some(s => s[2] >= 100)) && !h.s.some(s => s[4] === 'V'));
+  }
+
+  function renderRecordFilters() {
+    const counts = new Map();
+    for (const h of (record && record.history) || []) counts.set(h.L, { short: h.l, n: ((counts.get(h.L) || {}).n || 0) + 1 });
+    if (state.rleague !== 'all' && !counts.has(state.rleague)) state.rleague = 'all';
+    chipRow($('r-league'), [{ id: 'all', label: 'All', n: record && record.history ? record.history.length : 0 },
+      ...[...counts].sort((a, b) => b[1].n - a[1].n).map(([L, c]) => ({ id: L, label: c.short, n: c.n }))], state.rleague, id => set({ rleague: id }));
+    chipRow($('r-market'), RMARKETS, state.rmarket, id => set({ rmarket: id }));
+    chipRow($('r-measure'), MEASURES, state.rmeasure, id => set({ rmeasure: id }));
+    $('r-thin').checked = state.thin;
+  }
+
+  function renderVerdict(list) {
+    const meta = record.meta || {};
+    const since = meta.trackingSince ? new Date(meta.trackingSince) : null;
+    const sinceTxt = since ? since.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'today';
+    const waiting = (record.pending || []).length;
+    const upd = meta.updatedAt ? `Updated ${dayFmt.format(new Date(meta.updatedAt))} ${clock(meta.updatedAt)}` : '';
+    const t = tally(list.map(STRATS[0].pick).filter(Boolean).map(side));
+    // Correlation between the chosen split and beating the odds, over every graded side
+    const col = (MEASURES.find(m => m.id === state.rmeasure) || MEASURES[0]).col;
+    const xs = [], ys = [];
+    for (const h of list) for (const s of h.s) {
+      const pay = payout(s[1]);
+      if (pay == null || (s[4] !== 'W' && s[4] !== 'L')) continue;
+      xs.push(s[col]); ys.push((s[4] === 'W' ? 1 : 0) - 1 / (1 + pay));
+    }
+    let r = null;
+    if (xs.length > 2) {
+      const mx = xs.reduce((a, b) => a + b, 0) / xs.length, my = ys.reduce((a, b) => a + b, 0) / ys.length;
+      let sxy = 0, sxx = 0, syy = 0;
+      xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; syy += (ys[i] - my) ** 2; });
+      r = sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+    }
+    let head, body;
+    if (!record.history.length) {
+      head = 'Tracking has started';
+      body = `${waiting} bet${waiting === 1 ? ' is' : 's are'} saved and waiting for final scores. Results start showing after the first games finish.`;
+    } else if (t.n < 100) {
+      head = 'Too early to tell';
+      body = `${t.n} bets graded so far with these filters. A fair answer takes several hundred, so give it a week or two.`;
+    } else if (Math.abs(t.z) < 2) {
+      head = 'No reliable edge yet';
+      body = `The side with more money is winning about as often as its odds say. A gap this size could easily be luck.`;
+    } else if (t.z >= 2) {
+      head = 'The money side is beating its odds';
+      body = `Over ${t.n} bets the side with more money won more often than it needed to, by more than luck usually explains. Keep watching: edges like this often shrink.`;
+    } else {
+      head = 'The money side is losing to its odds';
+      body = `Over ${t.n} bets the side with more money won less often than it needed to, by more than luck usually explains.`;
+    }
+    const rTxt = r == null ? '' : `Correlation between ${state.rmeasure === 'h' ? '% of money' : '% of bets'} and beating the odds: r = ${r.toFixed(2)} across ${xs.length} sides (0 means no link).`;
+    $('verdict').innerHTML = `
+      <span class="eyebrow">Does the money side win? · tracking since ${esc(sinceTxt)}</span>
+      <h2>${esc(head)}</h2>
+      ${t.n ? `<div class="vnums">
+        <div class="vnum"><b>${pct(t.win)}</b><span>won (${t.w}&ndash;${t.l}${t.p ? '&ndash;' + t.p : ''})</span></div>
+        <div class="vnum"><b>${pct(t.need)}</b><span>needed to break even</span></div>
+        <div class="vnum"><b>${t.roi == null ? '&ndash;' : (t.roi >= 0 ? '+' : '&minus;') + Math.abs(t.roi * 100).toFixed(1) + '%'}</b><span>return per bet</span></div>
+      </div>` : ''}
+      <p>${esc(body)}</p>
+      <span class="fine">${esc([rTxt, `${record.history.length} bets graded in total, ${waiting} waiting for results.`, upd].filter(Boolean).join(' '))}</span>`;
+  }
+
+  function renderStrats(list) {
+    const rows = STRATS.map(st => {
+      const t = tally(list.map(st.pick).filter(Boolean).map(side));
+      return `<tr${t.n < 30 ? ' class="thin"' : ''}><td>${esc(st.label)}${st.note ? `<small>${esc(st.note)}</small>` : ''}</td>
+        <td>${t.n + t.p}</td><td class="opt">${t.w}&ndash;${t.l}${t.p ? '&ndash;' + t.p : ''}</td><td>${pct(t.win)}</td><td>${pct(t.need)}</td><td>${signed(t.roi)}</td></tr>`;
+    }).join('');
+    $('strat').innerHTML = `<thead><tr><th scope="col">Strategy</th><th scope="col">Bets</th><th scope="col" class="opt">W&ndash;L&ndash;P</th><th scope="col">Won</th><th scope="col">Needed</th><th scope="col">ROI</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function renderCurve(list) {
+    const m = MEASURES.find(x => x.id === state.rmeasure) || MEASURES[0];
+    $('curve-title').textContent = `Win rate by ${m.label}`;
+    const buckets = [[0, 20], [20, 40], [40, 60], [60, 80], [80, 101]].map(([lo, hi]) => ({ lo, hi, items: [] }));
+    for (const h of list) for (const s of h.s) {
+      const b = buckets.find(k => s[m.col] >= k.lo && s[m.col] < k.hi);
+      if (b) b.items.push(side(s));
+    }
+    const rows = buckets.slice().reverse().map(b => {
+      const t = tally(b.items);
+      const label = `${b.lo}&ndash;${Math.min(b.hi, 100)}%`;
+      const bar = t.n ? `<div class="wbar ${m.id}" title="Won ${pct(t.win)}, needed ${pct(t.need)}"><i style="width:${(t.win * 100).toFixed(1)}%"></i><u style="left:${(t.need * 100).toFixed(1)}%"></u></div>` : '';
+      return `<tr${t.n < 30 ? ' class="thin"' : ''}><td>${label}${t.n < 30 && t.n ? '<small>few bets</small>' : ''}</td><td>${t.n + t.p}</td>
+        <td class="barcell">${bar}</td><td>${pct(t.win)}</td><td>${pct(t.need)}</td><td class="opt">${t.n ? signed(t.win - t.need) : '&ndash;'}</td><td>${signed(t.roi)}</td></tr>`;
+    }).join('');
+    $('curve').innerHTML = `<thead><tr><th scope="col">${esc(m.label)}</th><th scope="col">Bets</th><th scope="col"><span class="vh">Won vs needed</span></th><th scope="col">Won</th><th scope="col">Needed</th><th scope="col" class="opt">Edge</th><th scope="col">ROI</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function renderRecent(list) {
+    const recent = list.slice().reverse();
+    const RES = { W: 'Won', L: 'Lost', P: 'Push' };
+    const items = recent.slice(0, state.rshown).map(h => {
+      const s = STRATS[0].pick(h);
+      if (!s) return '';
+      const x = side(s);
+      const day = new Date(h.st).toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
+      return `<li><span class="res ${esc(x.r)}">${RES[x.r] || '&ndash;'}</span>
+        <div class="gl1"><span class="sel">${esc(x.name)}</span>${x.o ? `<span class="odds">${esc(odds(x.o))}</span>` : ''}<span class="mkt">${esc(h.t)}</span></div>
+        <div class="gl2">${esc(h.g)} · ${esc(h.l)} · ${esc(day)}</div>
+        <div class="gl3">${x.b}% of bets · ${x.h}% of money · Final: ${esc(h.sc)}</div></li>`;
+    }).join('');
+    $('recent').innerHTML = items || '<li style="display:block"><p class="msg"><b>Nothing graded yet</b>Finished games show up here after the next update.</p></li>';
+    $('rmore-row').hidden = recent.length <= state.rshown;
+  }
+
+  function renderRecord() {
+    if (!record) return;
+    renderRecordFilters();
+    const list = graded();
+    renderVerdict(list);
+    renderStrats(list);
+    renderCurve(list);
+    renderRecent(list);
+  }
+
+  // ---- Tabs (#today / #record) ----
+  function showView() {
+    const v = record && location.hash === '#record' ? 'record' : 'today';
+    $('view-today').hidden = v !== 'today';
+    $('view-record').hidden = v !== 'record';
+    $('tab-today').setAttribute('aria-selected', String(v === 'today'));
+    $('tab-record').setAttribute('aria-selected', String(v === 'record'));
+  }
+  $('tabs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-view]');
+    if (!b) return;
+    if (b.dataset.view === 'record') location.hash = 'record';
+    else history.replaceState(null, '', location.pathname + location.search);
+    showView();
+  });
+  window.addEventListener('hashchange', showView);
+
+  function render() { renderFilters(); renderStatus(); renderGlance(); renderList(); renderRecord(); }
 
   function set(patch) {
-    Object.assign(state, patch, { shown: PAGE });
+    Object.assign(state, patch, { shown: PAGE, rshown: 20 });
     save();
     render();
   }
@@ -439,6 +729,8 @@ ol.picks{list-style:none;margin:0;padding:0}
   $('more').addEventListener('click', () => { state.shown += PAGE; renderList(); });
   $('f-upcoming').addEventListener('change', e => set({ upcoming: e.target.checked }));
   $('f-thin').addEventListener('change', e => set({ thin: e.target.checked }));
+  $('r-thin').addEventListener('change', e => set({ thin: e.target.checked }));
+  $('rmore').addEventListener('click', () => { state.rshown += 20; renderRecord(); });
   setInterval(() => { if (!STATIC && !document.hidden) load(false); }, POLL_MS);
   document.addEventListener('visibilitychange', () => { if (!STATIC && !document.hidden && Date.now() - lastLoad > POLL_MS) load(false); });
 
@@ -448,7 +740,14 @@ ol.picks{list-style:none;margin:0;padding:0}
     // Snapshot mode (the Claude artifact): numbers ship inside the page, nothing to fetch.
     STATIC = true;
     $('refresh').hidden = true;
-    try { data = JSON.parse(embedded.textContent); render(); }
+    try {
+      const blob = JSON.parse(embedded.textContent);
+      data = blob.v ? blob.board : blob;
+      record = blob.v >= 2 ? blob : null;
+      $('tabs').hidden = !record;
+      showView();
+      render();
+    }
     catch (err) { $('picks').innerHTML = '<li><p class="msg"><b>Couldn\'t read the saved numbers</b>Ask Claude to rebuild this page.</p></li>'; }
   } else {
     load(false);
