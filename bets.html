@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- server-only:start -->
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,10 +10,12 @@
 <meta name="apple-mobile-web-app-title" content="Bets">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="robots" content="noindex">
-<title>Bets of the Day</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<!-- server-only:end -->
+<title>Bets of the Day</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
@@ -178,7 +181,7 @@ ol.picks{list-style:none;margin:0;padding:0}
         <p>Where the public is betting at DraftKings today</p>
       </div>
     </div>
-    <a class="switch-app" href="/">Blackjack &rarr;</a>
+    <!-- server-only:start --><a class="switch-app" href="/">Blackjack &rarr;</a><!-- server-only:end -->
   </header>
 
   <div class="status">
@@ -224,6 +227,7 @@ ol.picks{list-style:none;margin:0;padding:0}
 
   <!--account-->
 </div>
+<!--board-data-->
 
 <script>
 (() => {
@@ -259,6 +263,7 @@ ol.picks{list-style:none;margin:0;padding:0}
 
   let data = null;
   let lastLoad = 0;
+  let STATIC = false;
 
   // ---- Formatting ------------------------------------------------------------------
   const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -389,7 +394,9 @@ ol.picks{list-style:none;margin:0;padding:0}
     if (!data) return;
     const n = data.games.length;
     const upd = data.sourceUpdatedAt || data.fetchedAt;
-    $('status').innerHTML = `<b>${n}</b> game${n === 1 ? '' : 's'} today · DraftKings updated <b>${esc(clock(upd))}</b>`;
+    $('status').innerHTML = STATIC
+      ? `<b>${n}</b> game${n === 1 ? '' : 's'} · numbers from <b>${esc(dayFmt.format(new Date(upd)))} ${esc(clock(upd))}</b> · ask Claude to update this snapshot`
+      : `<b>${n}</b> game${n === 1 ? '' : 's'} today · DraftKings updated <b>${esc(clock(upd))}</b>`;
     const warn = data.errors && data.errors.length ? `Some leagues didn't load (${data.errors.map(esc).join('; ')}).` : '';
     $('warn').textContent = warn;
     $('warn').hidden = !warn;
@@ -432,10 +439,19 @@ ol.picks{list-style:none;margin:0;padding:0}
   $('more').addEventListener('click', () => { state.shown += PAGE; renderList(); });
   $('f-upcoming').addEventListener('change', e => set({ upcoming: e.target.checked }));
   $('f-thin').addEventListener('change', e => set({ thin: e.target.checked }));
-  setInterval(() => { if (!document.hidden) load(false); }, POLL_MS);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastLoad > POLL_MS) load(false); });
+  setInterval(() => { if (!STATIC && !document.hidden) load(false); }, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!STATIC && !document.hidden && Date.now() - lastLoad > POLL_MS) load(false); });
 
   renderFilters();
-  load(false);
+  const embedded = document.getElementById('board-data');
+  if (embedded) {
+    // Snapshot mode (the Claude artifact): numbers ship inside the page, nothing to fetch.
+    STATIC = true;
+    $('refresh').hidden = true;
+    try { data = JSON.parse(embedded.textContent); render(); }
+    catch (err) { $('picks').innerHTML = '<li><p class="msg"><b>Couldn\'t read the saved numbers</b>Ask Claude to rebuild this page.</p></li>'; }
+  } else {
+    load(false);
+  }
 })();
 </script>
