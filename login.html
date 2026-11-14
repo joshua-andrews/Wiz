@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e7ebe9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1210" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Blackjack">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex">
+<title>Sign in · Basic Strategy Flashcards</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#e7ebe9; --surface:#f9fbfa; --ink:#14201a; --muted:#56665e; --line:#cfd8d3; --focus:#2c6fd1;
+  --felt:#13663f; --felt-deep:#0a3f27; --felt-dim:rgba(230,242,235,.56); --rail:#3b2a1f;
+  --card:#fdfdf9; --card-ink:#16181a; --card-red:#c11d32;
+  --bad:#bf3328; --bad-bg:#fae2de; --btn:#14201a; --btn-ink:#f9fbfa; --field:#ffffff;
+  --font-display:'Barlow Condensed','Arial Narrow','Roboto Condensed',sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-card:'Bodoni Moda','Bodoni 72',Didot,Georgia,serif;
+  --font-suit:'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols 2','DejaVu Sans',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1210; --surface:#141c18; --ink:#e3ebe6; --muted:#93a39a; --line:#29352f; --focus:#7fb0ff;
+    --felt:#0f5536; --felt-deep:#062a1a; --felt-dim:rgba(220,235,226,.5); --rail:#24180f;
+    --card:#f1f1eb; --card-red:#b81a2f; --bad:#f07065; --bad-bg:#3a1714; --btn:#e3ebe6; --btn-ink:#0c1210; --field:#0f1613;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+body{margin:0;min-height:100%;display:grid;place-items:center;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);
+  padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{width:100%;max-width:380px;display:flex;flex-direction:column;gap:18px}
+
+.felt{--cw:62px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 16px 30px;border:7px solid var(--rail);border-radius:22px 22px 50% 50%/22px 22px 46px 46px;background:radial-gradient(110% 90% at 50% 30%,var(--felt),var(--felt-deep));box-shadow:inset 0 12px 26px -10px rgba(0,0,0,.45),0 12px 22px -14px rgba(0,0,0,.5);-webkit-user-select:none;user-select:none}
+.hand{display:flex}
+.card{position:relative;width:var(--cw);height:calc(var(--cw) * 1.4);border-radius:6px;background:var(--card);color:var(--card-ink);box-shadow:0 1px 0 rgba(0,0,0,.2),0 7px 14px -6px rgba(0,0,0,.6)}
+.card + .card{margin-left:-16px}
+.card:first-child{rotate:-6deg}.card:last-child{rotate:6deg}
+.card.red{color:var(--card-red)}
+.idx{position:absolute;top:6%;left:9%;display:flex;flex-direction:column;align-items:center;line-height:.92}
+.idx b{font:700 16px/.9 var(--font-card)}
+.idx i{font:normal 11px/1 var(--font-suit)}
+.pip{position:absolute;inset:0;display:grid;place-items:center;font:normal 30px/1 var(--font-suit)}
+.pip.face{font:700 30px/1 var(--font-card)}
+.felt-print{font:600 11px/1 var(--font-display);letter-spacing:.24em;text-transform:uppercase;color:var(--felt-dim)}
+
+h1{margin:0;font:700 30px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.sub{margin:4px 0 0;color:var(--muted)}
+form{display:flex;flex-direction:column;gap:6px;padding:16px 16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+label{margin-top:8px;font:600 12px/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+label:first-of-type{margin-top:0}
+input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:16px/1.3 var(--font-body)}
+input:focus{outline:2px solid var(--focus);outline-offset:1px}
+.pw{position:relative}
+.pw input{padding-right:70px}
+.show{position:absolute;top:50%;right:6px;translate:0 -50%;padding:8px 10px;border:0;background:transparent;color:var(--muted);font:600 13px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.go{margin-top:14px;padding:14px;border:0;border-radius:12px;background:var(--btn);color:var(--btn-ink);font:700 18px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.err{margin:0 0 6px;padding:10px 12px;border-radius:10px;background:var(--bad-bg);color:var(--bad);font-size:14px}
+.foot{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+</style>
+
+<main class="wrap">
+  <div class="felt" aria-hidden="true">
+    <div class="hand">
+      <div class="card"><span class="idx"><b>A</b><i>&#9824;&#65038;</i></span><span class="pip">&#9824;&#65038;</span></div>
+      <div class="card red"><span class="idx"><b>K</b><i>&#9829;&#65038;</i></span><span class="pip face">K</span></div>
+    </div>
+    <span class="felt-print">Blackjack pays 3 to 2</span>
+  </div>
+
+  <div>
+    <h1>Basic Strategy</h1>
+    <p class="sub">Sign in to drill every hand on the chart.</p>
+  </div>
+
+  <form method="post" action="/login">
+    {{error}}
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" value="{{username}}" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+    <label for="password">Password</label>
+    <div class="pw">
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button type="button" class="show" id="show" aria-controls="password" aria-pressed="false">Show</button>
+    </div>
+    <button type="submit" class="go">Sign in</button>
+  </form>
+
+  <p class="foot">Need a login? Ask the person who sent you this link.</p>
+</main>
+
+<script>
+  const pw = document.getElementById('password'), show = document.getElementById('show');
+  show.addEventListener('click', () => {
+    const visible = pw.type === 'text';
+    pw.type = visible ? 'password' : 'text';
+    show.textContent = visible ? 'Show' : 'Hide';
+    show.setAttribute('aria-pressed', String(!visible));
+  });
+</script>
+</html>

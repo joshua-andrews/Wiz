@@ -2,6 +2,21 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e7ebe9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c1210" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Blackjack">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<style>
+  /* Phone safe areas (notch, home bar) and the status-bar band when installed to the home screen */
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  @media (display-mode: standalone){body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--felt-deep,#0a3f27);z-index:10}}
+</style>
 <!-- artifact:start -->
 <title>Basic Strategy Flashcards</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -47,6 +62,9 @@
   --c-plain-ink:#3d4a43;
   --c-on:#0f1b15;
   --knob:#ffffff;
+  --tip-bg:#fff4da;
+  --tip-line:#efd69c;
+  --tip-ink:#8a5800;
   --font-display:'Barlow Condensed','Arial Narrow','Roboto Condensed',sans-serif;
   --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --font-card:'Bodoni Moda','Bodoni 72',Didot,Georgia,serif;
@@ -60,7 +78,7 @@
     --on-act:#0f1b15; --a-hit:#e4ebe7; --a-stand:#e6b819; --a-double:#25a867; --a-split:#4f9de0; --a-sur:#9d8ad9;
     --good:#55c486; --good-bg:#11301f; --bad:#f07065; --bad-bg:#3a1714; --warn:#f0a531;
     --c-green:#26a35e; --c-yellow:#dcb51b; --c-teal:#36aaa3; --c-plain:#1f2a25; --c-plain-ink:#b4c2ba; --c-on:#0f1b15;
-    --knob:#f3f6f4;
+    --knob:#f3f6f4; --tip-bg:#2a2311; --tip-line:#4b3e18; --tip-ink:#f0c25e;
     color-scheme:dark;
   }
 }
@@ -71,15 +89,16 @@
   --on-act:#0f1b15; --a-hit:#e4ebe7; --a-stand:#e6b819; --a-double:#25a867; --a-split:#4f9de0; --a-sur:#9d8ad9;
   --good:#55c486; --good-bg:#11301f; --bad:#f07065; --bad-bg:#3a1714; --warn:#f0a531;
   --c-green:#26a35e; --c-yellow:#dcb51b; --c-teal:#36aaa3; --c-plain:#1f2a25; --c-plain-ink:#b4c2ba; --c-on:#0f1b15;
-  --knob:#f3f6f4;
+  --knob:#f3f6f4; --tip-bg:#2a2311; --tip-line:#4b3e18; --tip-ink:#f0c25e;
   color-scheme:dark;
 }
 
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body)}
-button{font:inherit;color:inherit}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.felt,.pad,.tabs,.strips,.ctable table,.seg,.mark{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 kbd{font:500 11px/1 var(--font-body)}
@@ -111,7 +130,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 .deck-note{margin:-6px 0 0;font-size:13px;color:var(--muted)}
 
 /* Felt table */
-.felt{--cw:clamp(54px,15vw,84px);position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 14px 40px;border:9px solid var(--rail);border-radius:26px 26px 50% 50%/26px 26px 84px 84px;background:radial-gradient(110% 80% at 50% 32%,var(--felt) 0%,var(--felt-deep) 100%);color:var(--felt-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 14px 30px -10px rgba(0,0,0,.45),0 14px 26px -16px rgba(0,0,0,.55);overflow:hidden}
+.felt{--cw:clamp(48px,min(15vw,10.5vh),84px);position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 14px 40px;border:9px solid var(--rail);border-radius:26px 26px 50% 50%/26px 26px 84px 84px;background:radial-gradient(110% 80% at 50% 32%,var(--felt) 0%,var(--felt-deep) 100%);color:var(--felt-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 14px 30px -10px rgba(0,0,0,.45),0 14px 26px -16px rgba(0,0,0,.55);overflow:hidden}
 .seat-label{font:600 11px/1 var(--font-display);letter-spacing:.26em;text-transform:uppercase;color:var(--felt-dim)}
 .hand{display:flex;justify-content:center;align-items:center;min-height:calc(var(--cw) * 1.4 + 8px);padding-top:4px}
 .print{display:block;width:100%;max-width:400px;height:auto}
@@ -148,9 +167,9 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
   .pad.two{grid-template-columns:1fr 1fr}
   .pad.two .act{grid-column:auto}
 }
-.act{--c:var(--a-hit);min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;border-radius:12px;border:1px solid color-mix(in srgb,var(--c) 70%,#000);background:var(--c);color:var(--on-act);box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000);font:700 18px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .08s ease,box-shadow .08s ease,opacity .15s ease}
+.act{--c:var(--a-hit);min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;border-radius:12px;border:1px solid rgba(0,0,0,.28);border-color:color-mix(in srgb,var(--c) 70%,#000);background:var(--c);color:var(--on-act);box-shadow:0 3px 0 rgba(0,0,0,.3);box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000);font:700 18px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .08s ease,box-shadow .08s ease,opacity .15s ease}
 .act kbd{opacity:.6;text-transform:none;letter-spacing:0}
-.act:hover:not(:disabled){filter:brightness(1.05)}
+@media (hover:hover){.act:hover:not(:disabled){filter:brightness(1.05)}}
 .act:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000)}
 .act:disabled{opacity:.28;cursor:not-allowed;box-shadow:none}
 .pad.answered .act{cursor:default}
@@ -217,7 +236,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 .ctable tbody th{text-align:left;padding-left:2px;font-size:13.5px;color:var(--ink);white-space:nowrap}
 .ctable td{padding:0}
 .cell{position:relative;display:block;width:100%;height:30px;padding:0;border:0;border-radius:5px;font:700 12.5px/1 var(--font-display);letter-spacing:.02em;cursor:pointer}
-.cell:hover{filter:brightness(1.07)}
+@media (hover:hover){.cell:hover{filter:brightness(1.07)}}
 .cell.miss::after,.cell.fixed::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 1.5px var(--surface)}
 .cell.fixed::after{background:var(--warn)}
 .key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 0 0;font-size:13px;color:var(--muted)}
@@ -250,6 +269,50 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 .btn{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font:600 14px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
 .btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
 .done{font-size:13px;color:var(--good)}
+
+/* Coaching tip on a missed hand */
+.tip{display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px;border:1px solid var(--tip-line);border-radius:12px;background:var(--tip-bg)}
+.tip-label{font:700 11px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--tip-ink)}
+.tip p{margin:0;max-width:64ch}
+.tip b{font-weight:600}
+
+/* Phones */
+@media (max-width:480px){
+  .app{gap:10px;padding-block:10px 32px}
+  .view{gap:10px}
+  .top{flex-wrap:nowrap;gap:8px}
+  .brand{gap:9px}
+  .brand p{display:none}
+  h1{font-size:clamp(17px,5.3vw,21px);white-space:nowrap}
+  .mark{width:24px;height:33px;padding:3px 4px;border-radius:4px}
+  .mark b{font-size:12px}
+  .mark i{font-size:10px}
+  .tabs{flex:none}
+  .tabs button{padding:7px 10px;font-size:13px;letter-spacing:.05em}
+  .chips{display:none}
+  .score{gap:2px 12px;font-size:12px}
+  .deck-note{margin:-4px 0 0;font-size:12px}
+  .felt{gap:3px;padding:10px 8px 26px;border-width:6px;border-radius:20px 20px 50% 50%/20px 20px 46px 46px}
+  .seat-label{font-size:10px}
+  .print{max-width:250px}
+  .total{margin-top:4px;padding:5px 11px;font-size:14px}
+  .felt-note{font-size:12px}
+  .act{min-height:52px;padding:8px 4px 7px;font-size:17px}
+  .verdict{min-height:0;padding:12px 12px 14px}
+  .v-act{font-size:24px}
+  .v-why,.v-alt,.tip p{font-size:14px}
+  .next{padding:9px 13px;font-size:14px}
+  .strip{grid-template-columns:46px repeat(10,minmax(20px,1fr))}
+  .strip>span{height:22px;font-size:11px}
+  .summary>div{padding:8px 10px}
+  .val{font-size:20px}
+  .ctable{padding:10px 8px 12px}
+  .ctable table{min-width:280px;border-spacing:2px}
+  .ctable col.rowh{width:34px}
+  .cell{height:28px;font-size:12px}
+  .panel{padding:12px 14px 4px}
+}
+@media (max-width:379px){.mark{display:none}}
 
 @media (prefers-reduced-motion: reduce){
   .felt.anim .card{animation:none}
@@ -354,6 +417,7 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
         <span class="done" id="resetDone" hidden>Progress cleared.</span>
       </div>
     </div>
+    <!--account-->
   </section>
 </div>
 
@@ -487,6 +551,124 @@ const BS = (() => {
     return {act:base, why, strips:[{t:'H', row:t}]};
   }
 
+  // Coaching for a missed hand: what went wrong on this exact hand, and the rule of thumb for its row.
+  const DID_ON = {H:'hit', S:'stood on', D:'doubled', P:'split', R:'surrendered'};
+  const DID = {H:'hit', S:'stood', D:'doubled', P:'split', R:'surrendered'};
+  const PAIR_HOOK = {
+    A: 'Always split aces.',
+    T: 'Never split tens. Stand on 20.',
+    9: 'Split 9s against 2 to 9, except 7. Stand against 7, 10 and ace.',
+    8: 'Always split eights.',
+    7: 'Split 7s against 2 to 7. Hit against 8 or higher.',
+    6: 'Split 6s against 3 to 6, plus 2 with DAS. Otherwise hit.',
+    5: 'Never split fives. Play them as hard 10: double against 2 to 9, hit against 10 and ace.',
+    4: 'Split 4s only against 5 and 6, and only with DAS. Otherwise hit.',
+    3: 'Split 2s and 3s against 4 to 7, plus 2 and 3 with DAS. Otherwise hit.',
+    2: 'Split 2s and 3s against 4 to 7, plus 2 and 3 with DAS. Otherwise hit.',
+  };
+  const SOFT_PATTERN = ' The bigger the soft hand, the more dealer cards you double against.';
+  const SOFT_HOOK = {
+    9: 'Soft 20 (A,9) always stands.',
+    8: 'Soft 19 (A,8) stands, except double against a 6.',
+    7: 'Soft 18 (A,7): double against 2 to 6, stand against 7 and 8, hit against 9, 10 and ace.',
+    6: 'Soft 17 (A,6): double against 3 to 6, otherwise hit. Never stand on soft 17.' + SOFT_PATTERN,
+    5: 'A,4 and A,5: double against 4 to 6, otherwise hit.' + SOFT_PATTERN,
+    4: 'A,4 and A,5: double against 4 to 6, otherwise hit.' + SOFT_PATTERN,
+    3: 'A,2 and A,3: double against 5 and 6 only, otherwise hit.' + SOFT_PATTERN,
+    2: 'A,2 and A,3: double against 5 and 6 only, otherwise hit.' + SOFT_PATTERN,
+  };
+  const SUR_HOOK = 'Surrender only 16 against 9, 10 and ace, and 15 against 10, and only on your first two cards.';
+  function hardHook(t){
+    if (t >= 17) return 'Hard 17 and up always stands.';
+    if (t >= 13) return 'Hard 13 to 16: stand against 2 to 6, hit against 7 or higher.';
+    if (t === 12) return 'Hard 12: stand only against 4, 5 and 6. Hit against everything else.';
+    if (t === 11) return 'Always double 11, even against an ace.';
+    if (t === 10) return 'Double 10 against 2 to 9. Hit against 10 and ace.';
+    if (t === 9) return 'Double 9 against 3 to 6. Otherwise hit.';
+    return 'Hard 8 or less always hits.';
+  }
+  function hardWhat(t, picked, act, u){
+    const vs = against(u);
+    if (picked === 'R') return `You surrendered hard ${t} against ${vs}. Late surrender is only for 16 against 9, 10 and ace, and 15 against 10.`;
+    if (act === 'R') return `You ${DID_ON[picked]} hard ${t} against ${vs}. This hand loses so often that giving up half your bet is the cheaper option.`;
+    if (t >= 17) return `You ${DID_ON[picked]} hard ${t}. Most cards bust you, so stand on 17 and up.`;
+    if (t <= 11){
+      if (picked === 'S') return `You stood on hard ${t}. No single card can bust you, so always take at least one more card.`;
+      if (act === 'D') return `You hit hard ${t} against ${vs} instead of doubling. One card often lands you on 19 to 21 and the odds favor you here, so get more money on the table.`;
+      if (t <= 8) return `You doubled hard ${t}. It's too far from a strong total to double. Just hit.`;
+      if (t === 9) return u === 0 ? "You doubled 9 against a 2. A 2 isn't weak enough to double a 9. Just hit." : `You doubled 9 against ${vs}. Against 7 or higher, a 9 isn't strong enough to double. Just hit.`;
+      return `You doubled ${t} against ${vs}. A dealer 10 or ace is too strong to double into. Just hit.`;
+    }
+    if (picked === 'D') return `You doubled hard ${t}. Doubling is for 9, 10 and 11, where one card can make a strong hand. A hand this size can bust.`;
+    if (picked === 'H') return `You hit hard ${t} against ${vs}. A dealer 2 through 6 is a bust card, so stand and let the dealer take the risk.`;
+    if (t === 12 && u <= 1) return `You stood on 12 against ${vs}. 12 is the exception: only a 10-value card busts you, so hit against 2 and 3.`;
+    return `You stood on hard ${t} against ${vs}. A dealer 7 or higher usually ends on 17 or more, so a hand this weak has to improve. Hit.`;
+  }
+  function softWhat(x, picked, act, u, n){
+    const T = 11 + x, vs = against(u), code = SOFT[x][u];
+    if (picked === 'R') return `You surrendered soft ${T}. Soft hands are never surrendered: one more card can't bust you.`;
+    if (n > 2 && (code === 'D' || code === 'Ds')) return `You ${DID_ON[picked]} a 3-card soft ${T}. The chart says ${code}, but you can't double after hitting, so the backup play applies: ${ACT[act].toLowerCase()}.`;
+    if (act === 'D'){
+      if (picked === 'S') return `You stood on soft ${T} against ${vs}. A ${UP[u]} is one of the dealer's weakest cards and one card can't bust you, so double.` + (code === 'Ds' ? ' Ds means stand only when doubling isn\'t allowed.' : '');
+      return `You hit soft ${T} against ${vs} instead of doubling. The dealer busts often with a ${UP[u]} showing, so this hand is worth more money.`;
+    }
+    if (act === 'H'){
+      if (picked === 'S') return T >= 18 ? `You stood on soft 18 against ${vs}. The dealer often makes 19 or 20 here, and one card can't bust you, so hit.` : `You stood on soft ${T}. Soft 17 or less is too weak to stand on, and one card can't bust you, so hit.`;
+      return `You doubled soft ${T} against ${vs}. That card isn't weak enough to double this hand. Just hit.`;
+    }
+    if (picked === 'H') return `You hit soft ${T} against ${vs}. ${T} is already a strong hand here. Stand.`;
+    if (T === 20) return 'You doubled soft 20. It always stands.';
+    if (T === 19) return `You doubled soft 19 against ${vs}. Soft 19 only doubles against a 6. Stand.`;
+    return `You doubled soft 18 against ${vs}. Against 7 or 8, 18 is already a winning total. Stand.`;
+  }
+  function coach(sp, picked, rules){
+    const act = solve(sp, rules).act, u = sp.up, vs = against(u);
+    if (sp.kind === 'I') return {
+      what: sp.bj
+        ? "You took even money on your blackjack. It feels safe, but over time it pays less than letting your 3 to 2 blackjack play out."
+        : "You took insurance. It's a separate side bet on the dealer having blackjack, and it loses money over time.",
+      fix: 'Decline insurance and even money every time.',
+    };
+    if (sp.kind === 'P'){
+      const r = sp.row, code = PAIRS[r][u];
+      const name = r === 'A' ? 'aces' : r === 'T' ? 'tens' : `${r}s`;
+      const total = r === 'T' ? 20 : r === 'A' ? 12 : 2 * Number(r);
+      const should = ACT[act].toLowerCase();
+      let what;
+      if (picked === 'P'){
+        if (r === 'T') what = 'You split a 20. It already wins most of the time, so breaking it up costs you money.';
+        else if (r === '5') what = `You split 5s. Each new hand starts with a weak 5. Together they make hard 10, which you ${should} against ${vs}.`;
+        else if (code === 'Y/N') what = `You split ${name} against ${vs}, but DAS is off at your table. Without doubling after the split, this split isn't worth it, so ${should}.`;
+        else if (r === '9' && u === 5) what = "You split 9s against a 7. Your 18 already beats the dealer's most likely 17, so stand.";
+        else if (r === '9') what = `You split 9s against ${vs}. Against a 10 or ace, standing on 18 loses less than playing two hands that start with 9.`;
+        else if (r === '4') what = `You split 4s against ${vs}. Fours only split against 5 and 6, and only with DAS. Here, ${should} as hard 8.`;
+        else what = `You split ${name} against ${vs}. Against a strong dealer card you'd just turn one weak hand into two. ${should.charAt(0).toUpperCase() + should.slice(1)} instead.`;
+      } else if (act === 'P'){
+        if (r === 'A') what = `You ${DID_ON[picked]} a pair of aces instead of splitting. Together they're only a soft 12, but split, each ace starts a new hand worth 11.`;
+        else if (r === '8') what = `You ${DID_ON[picked]} a pair of 8s instead of splitting. Together they make 16, the worst total in the game. Split, and each 8 gets a fresh start.`;
+        else if (code === 'Y/N') what = `You ${DID[picked]} instead of splitting ${name} against ${vs}. With DAS allowed, this split makes money because you can double a good second card.`;
+        else if (r === '9') what = (u === 6 || u === 7)
+          ? `You ${DID_ON[picked]} 18 against ${vs}. The dealer often makes 18 or 19 here, so split the 9s and play two stronger starts.`
+          : `You ${DID[picked]} instead of splitting 9s against ${vs}. The dealer's card is weak, so two hands starting with 9 earn more than one 18.`;
+        else what = `You ${DID[picked]} instead of splitting ${name} against ${vs}. Against this card, two hands starting with ${r} do better than one hard ${total}.`;
+      } else {
+        what = `${hardWhat(total, picked, act, u)} When you don't split, play ${r === 'T' ? 'two tens' : `${r},${r}`} as hard ${total}.`;
+      }
+      return {what, fix: PAIR_HOOK[r]};
+    }
+    if (sp.kind === 'S'){
+      const code = SOFT[sp.row][u];
+      let fix = SOFT_HOOK[sp.row];
+      if (sp.n > 2 && (code === 'D' || code === 'Ds')) fix += ' After a hit, D means hit and Ds means stand.';
+      return {what: softWhat(sp.row, picked, act, u, sp.n), fix};
+    }
+    const t = sp.row, surSpot = !!SUR[t] && SUR[t][u] === 'SUR';
+    let fix = hardHook(t);
+    if (surSpot || picked === 'R') fix = SUR_HOOK + ' ' + fix;
+    if (sp.n > 2 && HARD[t][u] === 'D') fix += ' After a hit, D means hit.';
+    return {what: hardWhat(t, picked, act, u), fix};
+  }
+
   // Card generation
   const SUITS = ['♠','♥','♦','♣'];
   const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -539,7 +721,7 @@ const BS = (() => {
   }
 
   return {UP, PAIR_ROWS, SOFT_ROWS, HARD_ROWS, SUR_ROWS, PAIRS, SOFT, HARD, SUR, ACT, MEANING, CELLS, CELL_BY_ID,
-    cls, codePill, tableCodes, rowName, solve, makeHand, handValue, handLabel, softCombos, hardPairs, hardTriples};
+    cls, codePill, tableCodes, rowName, solve, coach, makeHand, handValue, handLabel, softCombos, hardPairs, hardTriples};
 })();
 </script>
 
@@ -547,7 +729,7 @@ const BS = (() => {
 /* UI */
 (() => {
   "use strict";
-  const {UP, PAIR_ROWS, SOFT_ROWS, HARD_ROWS, SUR_ROWS, ACT, CELLS, CELL_BY_ID, cls, tableCodes, rowName, solve, makeHand, handLabel} = BS;
+  const {UP, PAIR_ROWS, SOFT_ROWS, HARD_ROWS, SUR_ROWS, ACT, CELLS, CELL_BY_ID, cls, tableCodes, rowName, solve, coach, makeHand, handLabel} = BS;
   const $ = s => document.querySelector(s);
   const VS15 = '︎';
   const SUIT_NAME = {'♠':'spades','♥':'hearts','♦':'diamonds','♣':'clubs'};
@@ -611,6 +793,7 @@ const BS = (() => {
     if (forced) deckNote = 'Practicing the hand you picked on the chart. The next card comes from your deck.';
     recent.push(sp.id); if (recent.length > 5) recent.shift();
     renderTable(); renderPad(); renderVerdict(); renderMeta();
+    if ($('#felt').getBoundingClientRect().top < 0) window.scrollTo({top:0, behavior:scrollMode()});
   }
   const nextCard = () => deal(pickSpot(), false);
 
@@ -691,6 +874,8 @@ const BS = (() => {
     return `<div class="strips" role="img" aria-label="Chart rows for this hand, dealer ${UP[u]} highlighted">${head}${rows}</div>`;
   }
 
+  const tipHTML = t => `<div class="tip"><span class="tip-label">Quick tip</span><p>${t.what}</p><p><b>Remember:</b> ${t.fix}</p></div>`;
+
   function renderVerdict(){
     const v = $('#verdict'), {sp, sol} = current;
     if (!current.answered){
@@ -708,7 +893,9 @@ const BS = (() => {
     v.innerHTML = `<div class="v-top"><div class="v-head"><span class="badge">${ok ? 'Correct' : 'Missed'}</span><span class="v-act">${actName(sol.act)}</span>`
       + (ok ? '' : `<span class="v-you">You picked ${actName(current.picked).toLowerCase()}</span>`) + '</div>'
       + '<button type="button" class="next" id="nextBtn">Next hand <kbd>Space</kbd></button></div>'
-      + `<p class="v-ctx">${ctx}</p><p class="v-why">${sol.why}</p>`
+      + `<p class="v-ctx">${ctx}</p>`
+      + (ok ? '' : tipHTML(coach(sp, current.picked, settings)))
+      + `<p class="v-why">${sol.why}</p>`
       + (sol.alt ? `<p class="v-alt">${sol.alt}</p>` : '')
       + stripsHTML(sol.strips, sp.up);
   }
@@ -739,6 +926,15 @@ const BS = (() => {
     updateTotal(); renderPad(); renderVerdict(); renderMeta();
     const nb = $('#nextBtn');
     if (nb) nb.focus({preventScroll:true});
+    revealVerdict();
+  }
+
+  // On short screens, nudge the page so the whole answer shows without pushing the buttons off screen.
+  const scrollMode = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  function revealVerdict(){
+    const pad = $('#pad').getBoundingClientRect(), v = $('#verdict').getBoundingClientRect();
+    const by = Math.min(v.bottom - (window.innerHeight - 12), pad.top - 8);
+    if (by > 4) window.scrollBy({top:by, behavior:scrollMode()});
   }
 
   // Chart view
