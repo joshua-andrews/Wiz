@@ -178,16 +178,20 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 .pip{position:absolute;inset:0;display:grid;place-items:center;font:normal calc(var(--cw) * .48)/1 var(--font-suit)}
 .pip.face{font:700 calc(var(--cw) * .5)/1 var(--font-card)}
 .card.back{background:repeating-linear-gradient(45deg,var(--back) 0 5px,var(--back-2) 5px 10px);border:calc(var(--cw) * .07) solid var(--card)}
-.felt.anim .card{animation:deal .3s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 70ms)}
-@keyframes deal{from{translate:0 -16px;opacity:0}to{translate:0 0;opacity:1}}
+.felt.anim .card{animation:deal .5s cubic-bezier(.2,1.15,.35,1) both;animation-delay:calc(var(--i) * 90ms);backface-visibility:hidden}
+@keyframes deal{
+  0%{translate:110px -90px;transform:perspective(700px) rotateY(-100deg) scale(.75);opacity:0}
+  35%{opacity:1}
+  100%{translate:0 0;transform:perspective(700px) rotateY(0) scale(1);opacity:1}
+}
 
 /* Action pad */
 .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .pad.two{grid-template-columns:1fr 1fr}
-.act{--c:var(--a-hit);min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;border-radius:12px;border:1px solid rgba(0,0,0,.28);border-color:color-mix(in srgb,var(--c) 70%,#000);background:var(--c);color:var(--on-act);box-shadow:0 3px 0 rgba(0,0,0,.3);box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000);font:700 18px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .08s ease,box-shadow .08s ease,opacity .15s ease}
+.act{--c:var(--a-hit);min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;border-radius:12px;border:1px solid rgba(0,0,0,.28);border-color:color-mix(in srgb,var(--c) 70%,#000);background:var(--c);color:var(--on-act);box-shadow:0 3px 0 rgba(0,0,0,.3);box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000);font:700 18px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .3s cubic-bezier(.3,1.7,.5,1),box-shadow .08s ease,opacity .15s ease}
 .act kbd{opacity:.6;text-transform:none;letter-spacing:0}
 @media (hover:hover){.act:hover:not(:disabled){filter:brightness(1.05)}}
-.act:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000)}
+.act:active:not(:disabled){transform:scale(.94) translateY(2px);transition-duration:.06s;box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000)}
 .act:disabled{opacity:.28;cursor:not-allowed;box-shadow:none}
 .pad.answered .act{cursor:default}
 .pad.answered .act:not(.is-right):not(.is-wrong){opacity:.3}
@@ -293,6 +297,120 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 .tip p{margin:0;max-width:64ch}
 .tip b{font-weight:600}
 
+/* ---------- Game layer ---------- */
+/* HUD: level chip, XP bar, score */
+.hud{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:0}
+.lvl{position:relative;flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;
+  background:radial-gradient(circle,#c8202f 0 55%,transparent 56%),repeating-conic-gradient(#c8202f 0 22.5deg,#ffffff 22.5deg 45deg);
+  box-shadow:0 3px 8px -3px rgba(0,0,0,.5),inset 0 0 0 2px rgba(0,0,0,.15)}
+.lvl::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.7)}
+.lvl-n{position:relative;font:700 18px/1 var(--font-display);color:#ffffff;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.lvl.bump{animation:chipspin .9s cubic-bezier(.3,1.5,.5,1)}
+@keyframes chipspin{0%{transform:perspective(300px) rotateY(0) scale(1)}50%{transform:perspective(300px) rotateY(180deg) scale(1.25)}100%{transform:perspective(300px) rotateY(360deg) scale(1)}}
+.hud-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.hud-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+.hud-top b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 15px/1.1 var(--font-display);letter-spacing:.08em;text-transform:uppercase}
+.xp-num{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.xp-bar{position:relative;height:9px;overflow:hidden;border-radius:999px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
+.xp-bar i{position:absolute;inset:0 auto 0 0;width:var(--xp,0%);overflow:hidden;border-radius:inherit;background:linear-gradient(90deg,var(--a-double),var(--c-yellow));transition:width .8s cubic-bezier(.3,1.3,.5,1)}
+.xp-bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);translate:-100% 0}
+.xp-bar.gain i::after{animation:shine .9s ease-out}
+@keyframes shine{to{translate:100% 0}}
+.hud .score{gap:2px 10px;font-size:12px}
+
+/* Player row on the felt: mascot | cards | streak flame */
+.seat-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;width:100%}
+.streak{justify-self:center;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--felt-ink)}
+.flame{font-size:calc(var(--cw) * .42);line-height:1;filter:grayscale(1);opacity:.35}
+.streak-n{font:700 calc(var(--cw) * .36)/1 var(--font-display);font-variant-numeric:tabular-nums}
+.mult{padding:3px 7px;border-radius:999px;background:rgba(0,0,0,.3);font:700 12px/1 var(--font-display);letter-spacing:.06em;color:var(--felt-dim)}
+.streak[data-level="1"] .flame{filter:none;opacity:.85}
+.streak[data-level="2"] .flame{filter:none;opacity:1;animation:flick .5s ease-in-out infinite alternate}
+.streak[data-level="3"] .flame{filter:drop-shadow(0 0 6px #ffb02e);opacity:1;font-size:calc(var(--cw) * .54);animation:flick .35s ease-in-out infinite alternate}
+.streak[data-level="4"] .flame{filter:drop-shadow(0 0 10px #ff6a00);opacity:1;font-size:calc(var(--cw) * .66);animation:flick .25s ease-in-out infinite alternate}
+.streak[data-level="2"] .mult,.streak[data-level="3"] .mult{background:var(--c-yellow);color:var(--c-on)}
+.streak[data-level="4"] .mult{background:var(--fire);color:#ffffff}
+@keyframes flick{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.1) rotate(4deg)}}
+.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+
+/* Mascot: a poker chip with a face */
+.buddy{justify-self:center;width:calc(var(--cw) * .95);height:calc(var(--cw) * .95)}
+.buddy svg{display:block;width:100%;height:100%;overflow:visible}
+.b-body{transform-box:fill-box;transform-origin:50% 100%;animation:bob 2.6s ease-in-out infinite}
+.b-chip{fill:#c8202f;transition:fill .4s ease}
+.b-ring{fill:none;stroke:#ffffff;stroke-width:4.5;stroke-dasharray:6.7 6.65}
+.b-face{fill:#fbf6ea}
+.b-open ellipse,.b-grin{fill:#1d1d1f}
+.b-open{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
+.b-line{fill:none;stroke:#1d1d1f;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.b-sweat{fill:#79c6ff}
+.b-cheek{fill:#ff8b8b;opacity:.65}
+.b-joy,.b-brow,.b-grin,.b-frown,.b-sweat,.b-cheek{display:none}
+.buddy[data-state="happy"] .b-open,.buddy[data-state="happy"] .b-smile,.buddy[data-state="fire"] .b-open,.buddy[data-state="fire"] .b-smile{display:none}
+.buddy[data-state="happy"] .b-joy,.buddy[data-state="happy"] .b-grin,.buddy[data-state="happy"] .b-cheek,
+.buddy[data-state="fire"] .b-joy,.buddy[data-state="fire"] .b-grin,.buddy[data-state="fire"] .b-cheek{display:inline}
+.buddy[data-state="happy"] .b-body,.buddy[data-state="fire"] .b-body{animation:hop .75s cubic-bezier(.3,1.5,.5,1),bob 2.6s ease-in-out .75s infinite}
+.buddy[data-state="fire"] .b-chip,.buddy[data-state="hot"] .b-chip{fill:#e5481c}
+.buddy[data-state="fire"] svg,.buddy[data-state="hot"] svg{animation:glow .6s ease-in-out infinite alternate}
+.buddy[data-state="sad"] .b-smile{display:none}
+.buddy[data-state="sad"] .b-brow,.buddy[data-state="sad"] .b-frown,.buddy[data-state="sad"] .b-sweat{display:inline}
+.buddy[data-state="sad"] .b-body{animation:droop .9s cubic-bezier(.3,1.3,.5,1) forwards}
+.buddy[data-state="sad"] .b-sweat{transform-box:fill-box;animation:drip 1.4s ease-in .3s infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes hop{0%{transform:none}18%{transform:translateY(2px) scale(1.14,.86)}48%{transform:translateY(-16px) scale(.9,1.12) rotate(-6deg)}72%{transform:translateY(0) scale(1.08,.92)}100%{transform:none}}
+@keyframes droop{0%{transform:none}25%{transform:rotate(9deg)}50%{transform:rotate(-7deg)}100%{transform:translateY(3px) rotate(-8deg) scale(1,.96)}}
+@keyframes drip{0%{transform:translateY(0);opacity:1}100%{transform:translateY(9px);opacity:0}}
+@keyframes glow{from{filter:drop-shadow(0 0 4px rgba(255,170,40,.6))}to{filter:drop-shadow(0 0 11px rgba(255,120,20,.95))}}
+
+/* Stamp that slams onto the felt */
+.stamp{position:absolute;left:50%;top:58%;z-index:3;pointer-events:none;text-align:center;translate:-50% -50%;opacity:0}
+.stamp b{display:block;white-space:nowrap;font:700 clamp(34px,10vw,56px)/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:#ffd23f;-webkit-text-stroke:2px rgba(0,0,0,.3);text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 26px rgba(255,200,40,.5)}
+.stamp small{display:block;margin-top:5px;font:700 13px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--felt-ink);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.stamp.bad b{color:#ff6f61;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 26px rgba(255,80,60,.45)}
+.stamp.go{animation:stamp 1.3s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stamp{
+  0%{opacity:0;transform:scale(2.4) rotate(-14deg)}
+  14%{opacity:1;transform:scale(.92) rotate(-7deg)}
+  22%{transform:scale(1.05) rotate(-8deg)}
+  30%,78%{opacity:1;transform:scale(1) rotate(-8deg)}
+  100%{opacity:0;transform:translateY(-12px) scale(1.08) rotate(-8deg)}
+}
+
+/* Table flashes: gold glow when right, red flash and shake when wrong */
+.felt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
+.felt.win::after{box-shadow:inset 0 0 0 3px rgba(255,214,90,.9),inset 0 0 60px rgba(255,200,40,.35);animation:flash .9s ease-out}
+.felt.hurt::after{box-shadow:inset 0 0 0 3px rgba(255,90,80,.9),inset 0 0 60px rgba(255,60,60,.4);animation:flash .9s ease-out}
+.felt.hurt{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+.act.pop{animation:btnpop .55s cubic-bezier(.3,1.8,.5,1)}
+.act.shake{animation:btnshake .45s ease}
+@keyframes btnpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes btnshake{20%{transform:translateX(-6px) rotate(-2deg)}40%{transform:translateX(6px) rotate(2deg)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+/* Floating XP, toasts, confetti canvas, level-up overlay */
+.fx{position:fixed;inset:0;z-index:60;width:100%;height:100%;pointer-events:none}
+.floater{position:fixed;z-index:65;pointer-events:none;translate:-50% -50%;font:700 24px/1 var(--font-display);letter-spacing:.04em;color:var(--good);text-shadow:0 2px 0 var(--surface),0 0 12px var(--surface);animation:floatup 1.05s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes floatup{0%{opacity:0;transform:translateY(6px) scale(.6)}20%{opacity:1;transform:translateY(-10px) scale(1.2)}100%{opacity:0;transform:translateY(-64px) scale(1)}}
+.toasts{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:70;display:flex;flex-direction:column;align-items:center;gap:8px;padding-inline:16px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;max-width:100%;padding:10px 18px 10px 12px;border-radius:999px;background:var(--ink);color:var(--bg);box-shadow:0 12px 30px -10px rgba(0,0,0,.55);font:700 15px/1.2 var(--font-display);letter-spacing:.06em;text-transform:uppercase;animation:toastin .55s cubic-bezier(.3,1.5,.5,1) both}
+.toast .te{font-size:22px;line-height:1}
+.toast.out{animation:toastout .35s ease-in forwards}
+@keyframes toastin{from{opacity:0;transform:translateY(-30px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes toastout{to{opacity:0;transform:translateY(-20px) scale(.9)}}
+.lvlup{position:fixed;inset:0;z-index:55;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));background:rgba(6,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);cursor:pointer;animation:fadein .25s ease-out}
+.lvlup-card{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(340px,100%);padding:26px 22px 22px;border:1px solid var(--line);border-radius:22px;background:var(--surface);text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:popin .6s cubic-bezier(.3,1.6,.5,1)}
+.lvlup-eyebrow{font:700 13px/1 var(--font-display);letter-spacing:.3em;text-transform:uppercase;color:var(--tip-ink)}
+.lvlup .lvl{width:96px;height:96px;animation:chipspin 1s cubic-bezier(.3,1.5,.5,1) .15s both}
+.lvlup .lvl::before{inset:14px;border-width:2px}
+.lvlup .lvl-n{font-size:42px}
+.lvlup h2{margin:0;font:700 34px/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;text-wrap:balance}
+.lvlup p{margin:0;font-size:14px;color:var(--muted)}
+@keyframes popin{from{opacity:0;transform:scale(.6) translateY(20px)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}}
+
 /* Phones */
 @media (max-width:480px){
   .app{gap:10px;padding-block:10px 32px}
@@ -308,6 +426,12 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
   .tabs button{padding:7px 10px;font-size:13px;letter-spacing:.05em}
   .chips{display:none}
   .score{gap:2px 12px;font-size:12px}
+  .hud{flex-basis:170px;gap:8px}
+  .lvl{width:36px;height:36px}
+  .lvl::before{inset:6px}
+  .lvl-n{font-size:15px}
+  .hud-top b{font-size:13px}
+  .mult{font-size:11px;padding:2px 6px}
   .deck-note{margin:-4px 0 0;font-size:12px}
   .felt{gap:3px;padding:10px 8px 26px;border-width:6px;border-radius:20px 20px 50% 50%/20px 20px 46px 46px}
   .seat-label{font-size:10px}
@@ -334,6 +458,10 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 @media (prefers-reduced-motion: reduce){
   .felt.anim .card{animation:none}
   .music.on .eq i{animation:none;height:8px}
+  .felt.hurt,.act.pop,.act.shake,.lvl.bump,.bump,.flame,.b-body,.b-open,.b-sweat,.lvlup-card,.lvlup .lvl,.toast,.floater,.buddy svg{animation:none!important}
+  .xp-bar i{transition:none}
+  .stamp.go{animation:stampfade 1.3s forwards}
+  @keyframes stampfade{0%,80%{opacity:1;transform:rotate(-8deg)}100%{opacity:0;transform:rotate(-8deg)}}
   .act,.switch,.switch::after{transition:none}
 }
 </style>
@@ -357,7 +485,14 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
   <!-- DRILL -->
   <section class="view" id="view-drill" aria-label="Drill">
     <div class="meta">
-      <div class="score" id="score"></div>
+      <div class="hud">
+        <div class="lvl" id="lvlBadge" aria-hidden="true"><span class="lvl-n" id="lvlNum">1</span></div>
+        <div class="hud-main">
+          <div class="hud-top"><b id="lvlTitle">Rookie</b><span class="xp-num" id="xpNum">0 / 100 XP</span></div>
+          <div class="xp-bar" id="xpBar" role="progressbar" aria-label="XP toward the next level" aria-valuemin="0" aria-valuemax="100"><i id="xpFill"></i></div>
+          <div class="score" id="score"></div>
+        </div>
+      </div>
       <div class="meta-right">
         <div class="chips" id="chips"></div>
         <button type="button" class="music" id="musicBtn" aria-pressed="false" aria-label="Play music" data-tier="2"><svg class="mi i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.2-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z"/></svg><svg class="mi i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="musicLabel">Play music</span></button>
@@ -374,8 +509,33 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
         <text font-size="19"><textPath href="#arcA" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text>
         <text font-size="11"><textPath href="#arcB" startOffset="50%" text-anchor="middle">INSURANCE PAYS 2 TO 1</textPath></text>
       </svg>
-      <div class="hand" id="playerHand"></div>
+      <div class="seat-row">
+        <div class="buddy" id="buddy" data-state="idle" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <g class="b-body">
+              <circle class="b-chip" cx="32" cy="32" r="29"/>
+              <circle class="b-ring" cx="32" cy="32" r="25.5"/>
+              <circle class="b-face" cx="32" cy="32" r="19"/>
+              <g class="b-open"><ellipse cx="25.5" cy="30" rx="2.4" ry="3.2"/><ellipse cx="38.5" cy="30" rx="2.4" ry="3.2"/></g>
+              <path class="b-line b-joy" d="M22.6 31.2c1.3-2.8 4.5-2.8 5.8 0M35.6 31.2c1.3-2.8 4.5-2.8 5.8 0"/>
+              <path class="b-line b-brow" d="M21.8 26.6l6-1.9M42.2 26.6l-6-1.9"/>
+              <path class="b-line b-smile" d="M27 36.6c2.8 3 7.2 3 10 0"/>
+              <path class="b-grin" d="M25.6 35.4h12.8c0 4.4-2.9 7-6.4 7s-6.4-2.6-6.4-7z"/>
+              <path class="b-line b-frown" d="M27.2 40.6c2.7-2.7 6.9-2.7 9.6 0"/>
+              <circle class="b-cheek" cx="21.6" cy="35.6" r="2.3"/><circle class="b-cheek" cx="42.4" cy="35.6" r="2.3"/>
+              <path class="b-sweat" d="M46.5 21.5s-2.7 3.4-2.7 5a2.7 2.7 0 0 0 5.4 0c0-1.6-2.7-5-2.7-5z"/>
+            </g>
+          </svg>
+        </div>
+        <div class="hand" id="playerHand"></div>
+        <div class="streak" id="streakBox" data-level="0" role="status" aria-label="Current streak">
+          <span class="flame" aria-hidden="true">🔥</span>
+          <span class="streak-n" id="streakNum">0</span>
+          <span class="mult" id="multPill">x1</span>
+        </div>
+      </div>
       <div class="total" id="handTotal"></div>
+      <div class="stamp" id="stamp" aria-hidden="true"></div>
       <p class="felt-note" id="feltNote"></p>
       <p class="vh" id="srDeal" aria-live="polite"></p>
     </div>
@@ -433,10 +593,10 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
 
     <div class="panel">
       <h2>Progress</h2>
-      <p class="lede">Your stats are saved in this browser only.</p>
+      <p class="lede">You earn 10 XP for each correct hand, multiplied by your streak: x2 at 3 in a row, x3 at 6, x4 at 10, x5 at 15. Stats and XP are saved in this browser only.</p>
       <div class="reset-row">
         <button type="button" class="btn" id="resetBtn">Reset progress</button>
-        <span id="resetConfirm" hidden>Erase all saved stats?
+        <span id="resetConfirm" hidden>Erase all saved stats and XP?
           <button type="button" class="btn danger" id="resetYes">Erase stats</button>
           <button type="button" class="btn" id="resetNo">Keep them</button>
         </span>
@@ -445,6 +605,18 @@ h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transf
     </div>
     <!--account-->
   </section>
+</div>
+
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="lvlup" id="lvlUp" role="dialog" aria-modal="true" aria-labelledby="lvlUpTitle" hidden>
+  <div class="lvlup-card">
+    <span class="lvlup-eyebrow">Level up</span>
+    <div class="lvl" aria-hidden="true"><span class="lvl-n" id="lvlUpNum">2</span></div>
+    <h2 id="lvlUpTitle">Regular</h2>
+    <p>Keep your streak alive to earn XP faster.</p>
+    <button type="button" class="next" id="lvlUpClose">Keep going</button>
+  </div>
 </div>
 
 <script>
@@ -939,6 +1111,12 @@ const Music = (() => {
       lp.frequency.setTargetAtTime(TIERS[tierFor(heat)].cutoff, t + 0.9, 0.6);
     }
   }
+  function fanfare(){
+    if (!on || !ctx) return;
+    const t = ctx.currentTime + 0.02;
+    [81, 84, 88, 93, 96].forEach((m, i) => bell(t + i * 0.09, m, 0.9));
+    crash(t + 0.45);
+  }
   function setVolume(v){ vol = v; if (on && ctx) out.gain.setTargetAtTime(Math.max(v, 0.0001), ctx.currentTime, 0.1); }
   function state(){ const tr = tierFor(heat); return {on, tier:tr, name:TIERS[tr].name, supported:!!AC}; }
 
@@ -949,7 +1127,7 @@ const Music = (() => {
     else ctx.resume().then(run);
   });
 
-  return {start, stop, feedback, setVolume, state};
+  return {start, stop, feedback, fanfare, setVolume, state};
 })();
 </script>
 
@@ -974,13 +1152,15 @@ const Music = (() => {
   const DEFAULTS = {das:true, sur:false, multi:true, showTotal:true, vol:60, focus:'all', cats:{P:true, S:true, H:true, I:true}};
   let settings = JSON.parse(JSON.stringify(DEFAULTS));
   let stats = {};
+  let xp = 0;
   try {
     const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (saved && saved.settings) settings = {...DEFAULTS, ...saved.settings, cats:{...DEFAULTS.cats, ...(saved.settings.cats || {})}};
     if (saved && saved.stats) stats = saved.stats;
+    if (saved && typeof saved.xp === 'number') xp = saved.xp;
   } catch (e) {}
   settings.sur = false; // Surrender is not part of this drill.
-  const save =() => { try { localStorage.setItem(STORE, JSON.stringify({settings, stats})); } catch (e) {} };
+  const save =() => { try { localStorage.setItem(STORE, JSON.stringify({settings, stats, xp})); } catch (e) {} };
 
   let session = {n:0, c:0, streak:0, best:0};
   let current = null, recent = [], deckNote = '', view = 'drill';
@@ -1013,6 +1193,9 @@ const Music = (() => {
   }
 
   function deal(cell, forced){
+    $('#felt').classList.remove('win', 'hurt');
+    $('#stamp').className = 'stamp';
+    $('#buddy').dataset.state = session.streak >= 6 ? 'hot' : 'idle';
     const sp = {...cell};
     sp.n = (!forced && settings.multi && (sp.kind === 'S' || sp.kind === 'H') && Math.random() < 0.25) ? 3 : 2;
     const hand = makeHand(sp);
@@ -1082,8 +1265,8 @@ const Music = (() => {
     pad.innerHTML = list.map(a => {
       let c = 'act';
       if (current.answered){
-        if (a.k === current.sol.act) c += ' is-right';
-        else if (a.k === current.picked) c += ' is-wrong';
+        if (a.k === current.sol.act) c += ' is-right pop';
+        else if (a.k === current.picked) c += ' is-wrong shake';
       }
       return `<button type="button" class="${c}" data-act="${a.k}" style="--c:var(${a.c})"${allowed(a.k) ? '' : ' disabled'} aria-keyshortcuts="${a.key}"><span>${a.name}</span><kbd>${a.key}</kbd></button>`;
     }).join('');
@@ -1129,7 +1312,8 @@ const Music = (() => {
 
   function renderMeta(){
     const pct = session.n ? Math.round(100 * session.c / session.n) + '%' : '–';
-    $('#score').innerHTML = `<span>Score <b>${session.c}/${session.n}</b></span><span>Accuracy <b>${pct}</b></span><span>Streak <b>${session.streak}</b></span><span>Best <b>${session.best}</b></span>`;
+    $('#score').innerHTML = `<span><b>${session.c}/${session.n}</b> right</span><span><b>${pct}</b></span><span>Best streak <b>${session.best}</b></span>`;
+    renderHud();
     const chip = (label, on) => `<button type="button" class="chip${on ? ' on' : ''}" data-goto="setup"><span class="dot"></span>${label}</button>`;
     $('#chips').innerHTML = chip(settings.das ? 'DAS on' : 'DAS off', settings.das)
       + chip(settings.focus === 'weak' ? 'Weak spots' : 'Every hand', true);
@@ -1141,6 +1325,8 @@ const Music = (() => {
   function answer(k){
     if (!current || current.answered || !allowed(k)) return;
     const ok = k === current.sol.act;
+    const pressed = document.querySelector(`#pad [data-act="${k}"]`);
+    const rect = pressed ? pressed.getBoundingClientRect() : null, prevStreak = session.streak;
     current.answered = true; current.picked = k;
     const s = stats[current.sp.id] || (stats[current.sp.id] = {n:0, c:0, box:1, last:null});
     s.n++;
@@ -1148,10 +1334,18 @@ const Music = (() => {
     s.last = ok;
     session.n++;
     if (ok){ session.c++; session.streak++; session.best = Math.max(session.best, session.streak); } else session.streak = 0;
+    let gain = 0, levelUp = 0;
+    if (ok){
+      const before = levelOf(xp);
+      gain = 10 * multOf(session.streak);
+      xp += gain;
+      if (levelOf(xp) > before) levelUp = levelOf(xp);
+    }
     save();
     Music.feedback(ok, session.streak);
     renderMusic();
     updateTotal(); renderPad(); renderVerdict(); renderMeta();
+    celebrate(ok, rect, gain, prevStreak, levelUp);
     const nb = $('#nextBtn');
     if (nb) nb.focus({preventScroll:true});
     revealVerdict();
@@ -1163,6 +1357,173 @@ const Music = (() => {
     const pad = $('#pad').getBoundingClientRect(), v = $('#verdict').getBoundingClientRect();
     const by = Math.min(v.bottom - (window.innerHeight - 12), pad.top - 8);
     if (by > 4) window.scrollBy({top:by, behavior:scrollMode()});
+  }
+
+  // ---- Game layer: XP, levels, streak flame, mascot, effects ----
+  const TITLES = ['Rookie', 'Regular', 'Grinder', 'Card Sharp', 'High Roller', 'Shark', 'Pit Boss', 'Whale', 'Legend', 'Strategy Master'];
+  const levelStart = n => 100 * (n - 1) + 25 * (n - 1) * (n - 2);   // 0, 100, 250, 450, 700, 1000...
+  const levelOf = x => { let n = 1; while (x >= levelStart(n + 1)) n++; return n; };
+  const titleOf = n => TITLES[Math.min(n, TITLES.length) - 1];
+  const multOf = s => s >= 15 ? 5 : s >= 10 ? 4 : s >= 6 ? 3 : s >= 3 ? 2 : 1;
+  const pickOne = a => a[Math.floor(Math.random() * a.length)];
+  const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const restartClass = (el, c) => { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); };
+  let shownLevel = levelOf(xp);
+
+  function renderHud(){
+    const n = levelOf(xp), a = levelStart(n), b = levelStart(n + 1);
+    const pct = Math.round(100 * (xp - a) / (b - a));
+    $('#lvlNum').textContent = n;
+    $('#lvlTitle').textContent = titleOf(n);
+    $('#xpNum').textContent = `${xp - a} / ${b - a} XP`;
+    const fill = $('#xpFill');
+    if (n !== shownLevel){ fill.style.transition = 'none'; fill.style.setProperty('--xp', '0%'); void fill.offsetWidth; fill.style.transition = ''; shownLevel = n; }
+    fill.style.setProperty('--xp', pct + '%');
+    $('#xpBar').setAttribute('aria-valuenow', String(pct));
+    const s = session.streak;
+    $('#streakBox').dataset.level = s === 0 ? '0' : s < 3 ? '1' : s < 6 ? '2' : s < 10 ? '3' : '4';
+    $('#streakNum').textContent = s;
+    $('#multPill').textContent = 'x' + multOf(s);
+  }
+
+  // Confetti and emoji particles on a full-screen canvas
+  const FX = (() => {
+    const cv = $('#fx'), g = cv.getContext('2d');
+    let W = 0, H = 0, parts = [], raf = 0, last = 0;
+    function size(){
+      const d = Math.min(2, window.devicePixelRatio || 1);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = Math.round(W * d); cv.height = Math.round(H * d);
+      g.setTransform(d, 0, 0, d, 0, 0);
+    }
+    size(); window.addEventListener('resize', size);
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const palette = () => ['--c-green', '--c-yellow', '--c-teal', '--fire', '--a-split']
+      .map(n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#2bb468').concat('#ffffff');
+    const add = p => parts.push(Object.assign({life:0, rot:rnd(-.6, .6), vr:rnd(-.2, .2)}, p));
+    function burst(x, y, o){
+      if (reducedMotion()) return;
+      const {emoji = [], count = 10, confetti = 16, power = 1, spread = Math.PI * 1.3, gravity = 0.32} = o;
+      const cols = palette();
+      for (let i = 0; i < count + confetti; i++){
+        const a = -Math.PI / 2 + rnd(-spread / 2, spread / 2), sp = rnd(5, 11) * power;
+        add({x, y, vx:Math.cos(a) * sp, vy:Math.sin(a) * sp, g:gravity, max:rnd(55, 85),
+          e:i < count ? emoji[i % emoji.length] : null, size:rnd(20, 32), c:cols[i % cols.length], w:rnd(6, 11), h:rnd(4, 7)});
+      }
+      run();
+    }
+    function rain(n, emoji){
+      if (reducedMotion()) return;
+      const cols = palette();
+      for (let i = 0; i < n; i++){
+        add({x:rnd(0, W), y:rnd(-H * 0.5, -20), vx:rnd(-1, 1), vy:rnd(2, 5), g:0.06, max:rnd(150, 210), sway:rnd(0, 6.28),
+          e:i % 4 === 0 ? emoji[i % emoji.length] : null, size:rnd(22, 34), c:cols[i % cols.length], w:rnd(7, 12), h:rnd(4, 7)});
+      }
+      run();
+    }
+    function run(){ if (!raf){ last = performance.now(); raf = requestAnimationFrame(step); } }
+    function step(now){
+      const dt = Math.min(2.5, (now - last) / 16.67); last = now;
+      g.clearRect(0, 0, W, H);
+      parts = parts.filter(p => {
+        p.life += dt;
+        p.vx *= Math.pow(0.985, dt);
+        p.vy = p.vy * Math.pow(0.985, dt) + p.g * dt;
+        if (p.sway !== undefined) p.x += Math.sin(p.life / 20 + p.sway) * 0.8 * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+        const k = 1 - p.life / p.max;
+        if (k <= 0 || p.y > H + 60) return false;
+        g.save();
+        g.globalAlpha = Math.min(1, k * 2);
+        g.translate(p.x, p.y); g.rotate(p.rot);
+        if (p.e){
+          const s = p.size * Math.min(1, p.life / 6 + 0.3);
+          g.font = `${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+          g.textAlign = 'center'; g.textBaseline = 'middle';
+          g.fillText(p.e, 0, 0);
+        } else {
+          g.scale(1, Math.cos(p.life * 0.25));
+          g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        }
+        g.restore();
+        return true;
+      });
+      raf = parts.length ? requestAnimationFrame(step) : 0;
+    }
+    return {burst, rain};
+  })();
+
+  function floater(text, x, y){
+    if (reducedMotion()) return;
+    const f = document.createElement('div');
+    f.className = 'floater'; f.textContent = text;
+    f.style.left = x + 'px'; f.style.top = y + 'px';
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 1200);
+  }
+  function stamp(text, sub, kind){
+    const el = $('#stamp');
+    el.className = 'stamp ' + kind;
+    el.innerHTML = `<b>${text}</b>${sub ? `<small>${sub}</small>` : ''}`;
+    void el.offsetWidth;
+    el.classList.add('go');
+  }
+  function toast(emoji, text){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span class="te">${emoji}</span><span>${text}</span>`;
+    $('#toasts').appendChild(t);
+    setTimeout(() => t.classList.add('out'), 2400);
+    setTimeout(() => t.remove(), 2800);
+  }
+  function setBuddy(state){ const b = $('#buddy'); b.dataset.state = 'idle'; void b.offsetWidth; b.dataset.state = state; }
+  const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+
+  const EMOJI_OK = [['✨', '🎯', '👏', '💚'], ['🔥', '✨', '💪', '🎯'], ['🔥', '💰', '💎', '🚀'], ['💎', '🚀', '⚡', '🔥'], ['👑', '💎', '🔥', '🚀']];
+  const STAMP_OK = [['Nice!', 'Clean!', 'Sharp!', 'Textbook!'], ['Hot hand!'], ['On fire!'], ['Unstoppable!'], ['Legendary!']];
+  const MILESTONES = {5:['🔥', 'Hot hand · 5 in a row'], 10:['⚡', 'Unstoppable · 10 in a row'], 15:['💎', "Dealer's nightmare · 15 in a row"], 20:['🏆', 'Perfect shoe · 20 in a row'], 25:['👑', 'Legendary · 25 in a row']};
+
+  function celebrate(ok, r, gain, prevStreak, levelUp){
+    const felt = $('#felt');
+    const x = r ? r.left + r.width / 2 : window.innerWidth / 2, y = r ? r.top + r.height / 2 : window.innerHeight / 2;
+    if (ok){
+      const m = multOf(session.streak) - 1;
+      felt.classList.remove('hurt'); restartClass(felt, 'win');
+      FX.burst(x, y, {emoji:EMOJI_OK[m], count:6 + m * 3, confetti:14 + m * 6});
+      floater(`+${gain} XP`, x, r ? r.top - 6 : y);
+      stamp(pickOne(STAMP_OK[m]), m >= 1 ? `x${m + 1} XP multiplier` : '', 'good');
+      setBuddy(session.streak >= 6 ? 'fire' : 'happy');
+      restartClass($('#streakNum'), 'bump');
+      if (multOf(session.streak) > multOf(prevStreak)) restartClass($('#multPill'), 'bump');
+      restartClass($('#xpBar'), 'gain');
+      if (session.streak >= 5 && session.streak % 5 === 0){
+        const [e, text] = MILESTONES[session.streak] || ['🚀', `${session.streak} in a row`];
+        toast(e, text);
+        FX.rain(70, ['🔥', '💰', '🃏', '💎', '⭐']);
+      }
+      buzz(12);
+      if (levelUp) setTimeout(() => showLevelUp(levelUp), 700);
+    } else {
+      felt.classList.remove('win'); restartClass(felt, 'hurt');
+      FX.burst(x, y, {emoji:['😬', '🧊', '💀', '😵'], count:5, confetti:0, power:0.6, spread:1.4});
+      stamp('Missed', prevStreak >= 3 ? `Streak of ${prevStreak} lost` : '', 'bad');
+      setBuddy('sad');
+      buzz([30, 50, 30]);
+    }
+  }
+  function showLevelUp(n){
+    $('#lvlUpNum').textContent = n;
+    $('#lvlUpTitle').textContent = titleOf(n);
+    $('#lvlUp').hidden = false;
+    $('#lvlUpClose').focus({preventScroll:true});
+    restartClass($('#lvlBadge'), 'bump');
+    FX.rain(120, ['⭐', '🏆', '💰', '🃏', '✨']);
+    Music.fanfare();
+    buzz([20, 40, 20, 40, 60]);
+  }
+  function closeLevelUp(){
+    $('#lvlUp').hidden = true;
+    const nb = $('#nextBtn'); if (nb) nb.focus({preventScroll:true});
   }
 
   // Chart view
@@ -1252,13 +1613,14 @@ const Music = (() => {
   $('#resetBtn').addEventListener('click', () => { $('#resetConfirm').hidden = false; $('#resetBtn').hidden = true; $('#resetDone').hidden = true; });
   $('#resetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; $('#resetBtn').hidden = false; });
   $('#resetYes').addEventListener('click', () => {
-    stats = {}; session = {n:0, c:0, streak:0, best:0}; recent = []; save();
+    stats = {}; xp = 0; session = {n:0, c:0, streak:0, best:0}; recent = []; save();
     $('#resetConfirm').hidden = true; $('#resetBtn').hidden = false; $('#resetDone').hidden = false;
     renderMeta();
   });
 
   // Events
   document.addEventListener('click', e => {
+    if (!$('#lvlUp').hidden){ closeLevelUp(); return; }
     if (e.target.closest('#musicBtn')){ setMusic(!Music.state().on); return; }
     const tab = e.target.closest('[data-view]');
     if (tab){ setView(tab.dataset.view); return; }
@@ -1272,6 +1634,10 @@ const Music = (() => {
   });
   $('#markMisses').addEventListener('change', renderChart);
   document.addEventListener('keydown', e => {
+    if (!$('#lvlUp').hidden){
+      if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); closeLevelUp(); }
+      return;
+    }
     if (view !== 'drill' || !current || e.metaKey || e.ctrlKey || e.altKey) return;
     const tag = e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
