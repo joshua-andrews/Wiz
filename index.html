@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- artifact:start -->
+<title>Basic Strategy Flashcards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  /* Layout: one centred column. The felt table is the flashcard, the action pad sits under it,
+     the verdict and the matching chart row sit under that. The Chart view mirrors the printed strategy card. */
+  --bg:#e7ebe9;
+  --surface:#f9fbfa;
+  --surface-2:#eef2f0;
+  --ink:#14201a;
+  --muted:#56665e;
+  --line:#cfd8d3;
+  --focus:#2c6fd1;
+  --felt:#13663f;
+  --felt-deep:#0a3f27;
+  --felt-ink:#e6f2eb;
+  --felt-dim:rgba(230,242,235,.56);
+  --rail:#3b2a1f;
+  --card:#fdfdf9;
+  --card-ink:#16181a;
+  --card-red:#c11d32;
+  --back:#7c2131;
+  --back-2:#5b1523;
+  --on-act:#0f1b15;
+  --a-hit:#ffffff;
+  --a-stand:#f2c31c;
+  --a-double:#22a866;
+  --a-split:#4b9de3;
+  --a-sur:#a28fe0;
+  --good:#15784a;
+  --good-bg:#dcf2e4;
+  --bad:#bf3328;
+  --bad-bg:#fae2de;
+  --warn:#d98a0b;
+  --c-green:#2bb468;
+  --c-yellow:#f4c91f;
+  --c-teal:#3dbdb5;
+  --c-plain:#ffffff;
+  --c-plain-ink:#3d4a43;
+  --c-on:#0f1b15;
+  --knob:#ffffff;
+  --font-display:'Barlow Condensed','Arial Narrow','Roboto Condensed',sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-card:'Bodoni Moda','Bodoni 72',Didot,Georgia,serif;
+  --font-suit:'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols 2','DejaVu Sans',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1210; --surface:#141c18; --surface-2:#1a2420; --ink:#e3ebe6; --muted:#93a39a; --line:#29352f; --focus:#7fb0ff;
+    --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.5); --rail:#24180f;
+    --card:#f1f1eb; --card-ink:#17191b; --card-red:#b81a2f; --back:#6e1c2a; --back-2:#4f121d;
+    --on-act:#0f1b15; --a-hit:#e4ebe7; --a-stand:#e6b819; --a-double:#25a867; --a-split:#4f9de0; --a-sur:#9d8ad9;
+    --good:#55c486; --good-bg:#11301f; --bad:#f07065; --bad-bg:#3a1714; --warn:#f0a531;
+    --c-green:#26a35e; --c-yellow:#dcb51b; --c-teal:#36aaa3; --c-plain:#1f2a25; --c-plain-ink:#b4c2ba; --c-on:#0f1b15;
+    --knob:#f3f6f4;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1210; --surface:#141c18; --surface-2:#1a2420; --ink:#e3ebe6; --muted:#93a39a; --line:#29352f; --focus:#7fb0ff;
+  --felt:#0f5536; --felt-deep:#062a1a; --felt-ink:#dcebe2; --felt-dim:rgba(220,235,226,.5); --rail:#24180f;
+  --card:#f1f1eb; --card-ink:#17191b; --card-red:#b81a2f; --back:#6e1c2a; --back-2:#4f121d;
+  --on-act:#0f1b15; --a-hit:#e4ebe7; --a-stand:#e6b819; --a-double:#25a867; --a-split:#4f9de0; --a-sur:#9d8ad9;
+  --good:#55c486; --good-bg:#11301f; --bad:#f07065; --bad-bg:#3a1714; --warn:#f0a531;
+  --c-green:#26a35e; --c-yellow:#dcb51b; --c-teal:#36aaa3; --c-plain:#1f2a25; --c-plain-ink:#b4c2ba; --c-on:#0f1b15;
+  --knob:#f3f6f4;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+kbd{font:500 11px/1 var(--font-body)}
+
+.app{max-width:760px;margin:0 auto;padding-block:14px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+.view{display:flex;flex-direction:column;gap:14px}
+
+/* Header */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{flex:none;width:32px;height:44px;border-radius:5px;background:var(--card);color:var(--card-ink);box-shadow:0 0 0 1px var(--line),0 4px 10px -5px rgba(0,0,0,.45);display:flex;flex-direction:column;align-items:flex-start;padding:4px 5px;line-height:.9;rotate:-7deg}
+.mark b{font:700 15px/1 var(--font-card)}
+.mark i{font:normal 12px/1 var(--font-suit)}
+h1{margin:0;font:700 27px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase;text-wrap:balance}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2)}
+.tabs button{border:0;background:transparent;padding:7px 16px;border-radius:999px;font:600 15px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+
+/* Drill meta */
+.meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.score{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.score b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font:600 12px/1.2 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.6}
+.chip.on{color:var(--ink)}
+.chip.on .dot{background:var(--a-double);opacity:1}
+.deck-note{margin:-6px 0 0;font-size:13px;color:var(--muted)}
+
+/* Felt table */
+.felt{--cw:clamp(54px,15vw,84px);position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 14px 40px;border:9px solid var(--rail);border-radius:26px 26px 50% 50%/26px 26px 84px 84px;background:radial-gradient(110% 80% at 50% 32%,var(--felt) 0%,var(--felt-deep) 100%);color:var(--felt-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 14px 30px -10px rgba(0,0,0,.45),0 14px 26px -16px rgba(0,0,0,.55);overflow:hidden}
+.seat-label{font:600 11px/1 var(--font-display);letter-spacing:.26em;text-transform:uppercase;color:var(--felt-dim)}
+.hand{display:flex;justify-content:center;align-items:center;min-height:calc(var(--cw) * 1.4 + 8px);padding-top:4px}
+.print{display:block;width:100%;max-width:400px;height:auto}
+.print text{fill:var(--felt-dim);font-family:var(--font-display);font-weight:600;letter-spacing:.2em}
+.total{margin-top:6px;padding:6px 13px;border-radius:999px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.14);font:600 15px/1 var(--font-display);letter-spacing:.09em;text-transform:uppercase}
+.total.masked{color:var(--felt-dim)}
+.felt-note{min-height:1.45em;margin:2px 0 0;max-width:38ch;text-align:center;font-size:13px;color:var(--felt-ink)}
+
+/* Playing cards */
+.card{position:relative;flex:none;width:var(--cw);height:calc(var(--cw) * 1.4);border-radius:calc(var(--cw) * .09);background:var(--card);color:var(--card-ink);box-shadow:0 1px 0 rgba(0,0,0,.2),0 7px 14px -6px rgba(0,0,0,.6);rotate:var(--rot,0deg)}
+.card.red{color:var(--card-red)}
+.hand .card + .card{margin-left:calc(var(--cw) * -.26)}
+.hand.three .card + .card{margin-left:calc(var(--cw) * -.4)}
+.idx{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:.92}
+.idx b{font:700 calc(var(--cw) * .25)/.9 var(--font-card)}
+.idx b.ten{font-size:calc(var(--cw) * .21);letter-spacing:-.06em}
+.idx i{font:normal calc(var(--cw) * .17)/1 var(--font-suit)}
+.tl{top:6%;left:8%}
+.br{bottom:6%;right:8%;rotate:180deg}
+.pip{position:absolute;inset:0;display:grid;place-items:center;font:normal calc(var(--cw) * .48)/1 var(--font-suit)}
+.pip.face{font:700 calc(var(--cw) * .5)/1 var(--font-card)}
+.card.back{background:repeating-linear-gradient(45deg,var(--back) 0 5px,var(--back-2) 5px 10px);border:calc(var(--cw) * .07) solid var(--card)}
+.felt.anim .card{animation:deal .3s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes deal{from{translate:0 -16px;opacity:0}to{translate:0 0;opacity:1}}
+
+/* Action pad */
+.pad{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.pad .act{grid-column:span 2}
+.pad .act:nth-child(4),.pad .act:nth-child(5){grid-column:span 3}
+.pad.two .act{grid-column:span 3}
+@media (min-width:560px){
+  .pad{grid-template-columns:repeat(5,1fr)}
+  .pad .act,.pad .act:nth-child(4),.pad .act:nth-child(5){grid-column:auto}
+  .pad.two{grid-template-columns:1fr 1fr}
+  .pad.two .act{grid-column:auto}
+}
+.act{--c:var(--a-hit);min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;border-radius:12px;border:1px solid color-mix(in srgb,var(--c) 70%,#000);background:var(--c);color:var(--on-act);box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#000);font:700 18px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:transform .08s ease,box-shadow .08s ease,opacity .15s ease}
+.act kbd{opacity:.6;text-transform:none;letter-spacing:0}
+.act:hover:not(:disabled){filter:brightness(1.05)}
+.act:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--c) 60%,#000)}
+.act:disabled{opacity:.28;cursor:not-allowed;box-shadow:none}
+.pad.answered .act{cursor:default}
+.pad.answered .act:not(.is-right):not(.is-wrong){opacity:.3}
+.act.is-right{outline:3px solid var(--good);outline-offset:3px}
+.act.is-wrong{outline:3px solid var(--bad);outline-offset:3px}
+.act.is-wrong span{text-decoration:line-through;text-decoration-thickness:2px}
+
+/* Verdict */
+.verdict{display:flex;flex-direction:column;gap:8px;min-height:116px;padding:14px 16px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.verdict.good{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}
+.verdict.bad{border-color:color-mix(in srgb,var(--bad) 50%,var(--line))}
+.v-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.v-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.badge{padding:5px 9px;border-radius:999px;font:700 12px/1 var(--font-display);letter-spacing:.1em;text-transform:uppercase}
+.good .badge{background:var(--good-bg);color:var(--good)}
+.bad .badge{background:var(--bad-bg);color:var(--bad)}
+.v-act{font:700 28px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.v-you{font-size:13px;color:var(--muted)}
+.v-ctx{margin:0;font-weight:600}
+.v-why,.v-alt{margin:0;max-width:64ch}
+.v-alt{font-size:14px;color:var(--muted)}
+.v-prompt{margin:0;color:var(--muted)}
+.v-prompt kbd{display:inline-block;min-width:1.7em;padding:3px 5px;margin-right:2px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;background:var(--surface-2);color:var(--ink);text-align:center}
+.hint-touch{display:none}
+@media (hover:none){.hint-keys,.next kbd,.act kbd{display:none}.hint-touch{display:inline}}
+.next{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;border:0;border-radius:10px;background:var(--ink);color:var(--bg);font:600 15px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.next kbd{opacity:.7}
+.next.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.code{display:inline-block;min-width:1.9em;padding:2px 5px;border-radius:4px;text-align:center;font:700 12px/1.25 var(--font-display);letter-spacing:.04em;vertical-align:1px}
+.c-g{background:var(--c-green);color:var(--c-on)}
+.c-y{background:var(--c-yellow);color:var(--c-on)}
+.c-t{background:var(--c-teal);color:var(--c-on)}
+.c-w{background:var(--c-plain);color:var(--c-plain-ink);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* Chart row strips under the verdict */
+.strips{display:grid;gap:3px;margin-top:4px;overflow-x:auto;padding:3px 2px}
+.strip{display:grid;grid-template-columns:56px repeat(10,minmax(22px,1fr));gap:2px;align-items:center}
+.strip>span{display:grid;place-items:center;height:24px;border-radius:4px;font:700 12px/1 var(--font-display);letter-spacing:.02em}
+.strip .strip-label{place-items:center start;font-weight:600;color:var(--muted);white-space:nowrap}
+.strip.head>span{height:16px;color:var(--muted);font-weight:600}
+.strip.head>span.on{color:var(--ink)}
+.sc.on{position:relative;z-index:1;outline:2.5px solid var(--ink);outline-offset:1px}
+
+/* Chart view */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--line)}
+@media (min-width:640px){.summary{grid-template-columns:repeat(6,1fr)}}
+.summary>div{display:flex;flex-direction:column;gap:3px;padding:10px 12px;background:var(--surface);min-width:0}
+.lab{font:600 11px/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.val{font:700 23px/1.05 var(--font-display);font-variant-numeric:tabular-nums}
+.sub{font-size:12px;color:var(--muted)}
+.chart-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;font-size:14px;color:var(--muted)}
+.chart-tools label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink)}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+.tables{display:flex;flex-direction:column;gap:14px}
+.ctable{display:flex;flex-direction:column;gap:8px;padding:12px 12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.ctable h3{margin:0;font:700 17px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase}
+.scroll{overflow-x:auto}
+.ctable table{width:100%;min-width:320px;border-collapse:separate;border-spacing:3px;table-layout:fixed}
+.ctable col.rowh{width:42px}
+.ctable th{padding:0;font:600 12px/1 var(--font-display);letter-spacing:.04em;color:var(--muted)}
+.ctable thead th{height:20px}
+.ctable thead .du{font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.ctable tbody th{text-align:left;padding-left:2px;font-size:13.5px;color:var(--ink);white-space:nowrap}
+.ctable td{padding:0}
+.cell{position:relative;display:block;width:100%;height:30px;padding:0;border:0;border-radius:5px;font:700 12.5px/1 var(--font-display);letter-spacing:.02em;cursor:pointer}
+.cell:hover{filter:brightness(1.07)}
+.cell.miss::after,.cell.fixed::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 1.5px var(--surface)}
+.cell.fixed::after{background:var(--warn)}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 0 0;font-size:13px;color:var(--muted)}
+.key>span{display:inline-flex;align-items:center;gap:6px}
+.ins{padding:12px 16px;border-radius:14px;background:var(--ink);color:var(--bg);text-align:center;font:700 16px/1.25 var(--font-display);letter-spacing:.12em;text-transform:uppercase;text-wrap:balance}
+
+/* Setup view */
+.panel{padding:14px 16px 4px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.panel h2{margin:0 0 2px;font:700 17px/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase}
+.lede{margin:0 0 8px;font-size:14px;color:var(--muted);max-width:60ch}
+.opt{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:12px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.opt b{display:block;font-weight:600}
+.opt small{display:block;margin-top:2px;font-size:13px;line-height:1.45;color:var(--muted);max-width:60ch}
+.switch{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:42px;height:24px;margin:0;border-radius:999px;background:var(--line);cursor:pointer;transition:background .15s ease}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--knob);box-shadow:0 1px 2px rgba(0,0,0,.35);transition:translate .15s ease}
+.switch:checked{background:var(--a-double)}
+.switch:checked::after{translate:18px 0}
+.focus-row{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.focus-row b{font-weight:600}
+.focus-row small{font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;align-self:flex-start;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:8px 14px;font:600 14px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.seg label + label span{border-left:1px solid var(--line)}
+.seg input:checked + span{background:var(--ink);color:var(--bg)}
+.seg input:focus-visible + span{outline:2px solid var(--focus);outline-offset:-2px}
+.setup-msg{margin:0 0 10px;font-size:13px;color:var(--bad)}
+.reset-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0 14px;border-top:1px solid var(--line)}
+.btn{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font:600 14px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.done{font-size:13px;color:var(--good)}
+
+@media (prefers-reduced-motion: reduce){
+  .felt.anim .card{animation:none}
+  .act,.switch,.switch::after{transition:none}
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><b>A</b><i>&#9824;&#65038;</i></span>
+      <div>
+        <h1>Basic Strategy</h1>
+        <p>Flashcards for every hand on the chart</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button type="button" role="tab" data-view="drill" aria-selected="true">Drill</button>
+      <button type="button" role="tab" data-view="chart" aria-selected="false">Chart</button>
+      <button type="button" role="tab" data-view="setup" aria-selected="false">Setup</button>
+    </nav>
+  </header>
+
+  <!-- DRILL -->
+  <section class="view" id="view-drill" aria-label="Drill">
+    <div class="meta">
+      <div class="score" id="score"></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <p class="deck-note" id="deckNote" hidden></p>
+
+    <div class="felt" id="felt">
+      <span class="seat-label">Dealer</span>
+      <div class="hand" id="dealerHand"></div>
+      <svg class="print" viewBox="0 0 400 60" aria-hidden="true" focusable="false">
+        <path id="arcA" d="M28 12 Q200 62 372 12" fill="none"/>
+        <path id="arcB" d="M92 36 Q200 74 308 36" fill="none"/>
+        <text font-size="19"><textPath href="#arcA" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text>
+        <text font-size="11"><textPath href="#arcB" startOffset="50%" text-anchor="middle">INSURANCE PAYS 2 TO 1</textPath></text>
+      </svg>
+      <div class="hand" id="playerHand"></div>
+      <div class="total" id="handTotal"></div>
+      <p class="felt-note" id="feltNote"></p>
+      <p class="vh" id="srDeal" aria-live="polite"></p>
+    </div>
+
+    <div class="pad" id="pad" aria-label="Your play"></div>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+  </section>
+
+  <!-- CHART -->
+  <section class="view" id="view-chart" aria-label="Chart" hidden>
+    <div class="summary" id="summary"></div>
+    <div class="chart-tools">
+      <label for="markMisses"><input type="checkbox" id="markMisses" checked> Mark hands I've missed</label>
+      <span><span class="legend-dot" style="background:var(--bad)"></span>missed last time &nbsp; <span class="legend-dot" style="background:var(--warn)"></span>missed before</span>
+    </div>
+    <p class="lede" style="margin:-4px 0 0">Tap any cell to practice that exact hand.</p>
+    <div class="tables" id="tables"></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="view-setup" aria-label="Setup" hidden>
+    <div class="panel">
+      <h2>Table rules</h2>
+      <p class="lede">These change the right answer on a few hands, so match the table you play.</p>
+      <label class="opt" for="optDas"><input class="switch" type="checkbox" id="optDas"><span><b>Double after split (DAS)</b><small>Decides the Y/N cells: split 2s and 3s against 2 and 3, 4s against 5 and 6, and 6s against 2.</small></span></label>
+      <label class="opt" for="optSur"><input class="switch" type="checkbox" id="optSur"><span><b>Late surrender</b><small>Surrender hard 16 against 9, 10 and ace, and hard 15 against 10.</small></span></label>
+    </div>
+
+    <div class="panel">
+      <h2>Hands in the deck</h2>
+      <p class="setup-msg" id="setupMsg" hidden>Keep at least one type of hand in the deck.</p>
+      <label class="opt" for="catP"><input class="switch" type="checkbox" id="catP"><span><b>Pair splitting</b><small>100 hands: every pair against every dealer upcard.</small></span></label>
+      <label class="opt" for="catS"><input class="switch" type="checkbox" id="catS"><span><b>Soft totals</b><small>80 hands: A,2 through A,9.</small></span></label>
+      <label class="opt" for="catH"><input class="switch" type="checkbox" id="catH"><span><b>Hard totals</b><small>100 hands: 8 through 17, surrender spots included.</small></span></label>
+      <label class="opt" for="catI"><input class="switch" type="checkbox" id="catI"><span><b>Insurance and even money</b><small>An occasional dealer ace, to make declining automatic.</small></span></label>
+    </div>
+
+    <div class="panel">
+      <h2>Practice</h2>
+      <div class="focus-row" role="radiogroup" aria-labelledby="focusLabel">
+        <b id="focusLabel">Which hands to drill</b>
+        <div class="seg">
+          <label><input type="radio" name="focus" value="all" id="focusAll"><span>Every hand</span></label>
+          <label><input type="radio" name="focus" value="weak" id="focusWeak"><span>Weak spots</span></label>
+        </div>
+        <small>Weak spots are hands you missed last time, or get right less than 70% of the time. Missed hands also come back more often in the normal deck.</small>
+      </div>
+      <label class="opt" for="optMulti"><input class="switch" type="checkbox" id="optMulti"><span><b>Mix in 3-card hands</b><small>Hands where you've already hit, so you can't double. Tests the D versus Ds cells: double if allowed, otherwise hit or stand.</small></span></label>
+      <label class="opt" for="optTotal"><input class="switch" type="checkbox" id="optTotal"><span><b>Show hand total</b><small>Turn off to practice reading soft hands yourself. The total still shows after you answer.</small></span></label>
+      <label class="opt" for="optAuto"><input class="switch" type="checkbox" id="optAuto"><span><b>Auto-advance when correct</b><small>Deals the next hand after a second. Misses always wait for you.</small></span></label>
+    </div>
+
+    <div class="panel">
+      <h2>Progress</h2>
+      <p class="lede">Your stats are saved in this browser only.</p>
+      <div class="reset-row">
+        <button type="button" class="btn" id="resetBtn">Reset progress</button>
+        <span id="resetConfirm" hidden>Erase all saved stats?
+          <button type="button" class="btn danger" id="resetYes">Erase stats</button>
+          <button type="button" class="btn" id="resetNo">Keep them</button>
+        </span>
+        <span class="done" id="resetDone" hidden>Progress cleared.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* Strategy data and pure logic. No DOM access here. */
+const BS = (() => {
+  const UP = ['2','3','4','5','6','7','8','9','10','A'];
+  const r = s => s.trim().split(/\s+/);
+
+  const PAIR_ROWS = ['A','T','9','8','7','6','5','4','3','2'];
+  const PAIRS = {
+    A: r('Y Y Y Y Y Y Y Y Y Y'),
+    T: r('N N N N N N N N N N'),
+    9: r('Y Y Y Y Y N Y Y N N'),
+    8: r('Y Y Y Y Y Y Y Y Y Y'),
+    7: r('Y Y Y Y Y Y N N N N'),
+    6: r('Y/N Y Y Y Y N N N N N'),
+    5: r('N N N N N N N N N N'),
+    4: r('N N N Y/N Y/N N N N N N'),
+    3: r('Y/N Y/N Y Y Y Y N N N N'),
+    2: r('Y/N Y/N Y Y Y Y N N N N'),
+  };
+  const SOFT_ROWS = [9,8,7,6,5,4,3,2];
+  const SOFT = {
+    9: r('S S S S S S S S S S'),
+    8: r('S S S S Ds S S S S S'),
+    7: r('Ds Ds Ds Ds Ds S S H H H'),
+    6: r('H D D D D H H H H H'),
+    5: r('H H D D D H H H H H'),
+    4: r('H H D D D H H H H H'),
+    3: r('H H H D D H H H H H'),
+    2: r('H H H D D H H H H H'),
+  };
+  const STIFF = 'S S S S S H H H H H';
+  const HARD_ROWS = [17,16,15,14,13,12,11,10,9,8];
+  const HARD = {
+    17: r('S S S S S S S S S S'),
+    16: r(STIFF), 15: r(STIFF), 14: r(STIFF), 13: r(STIFF),
+    12: r('H H S S S H H H H H'),
+    11: r('D D D D D D D D D D'),
+    10: r('D D D D D D D D H H'),
+    9:  r('H D D D D H H H H H'),
+    8:  r('H H H H H H H H H H'),
+  };
+  const SUR_ROWS = [16,15,14];
+  const SUR = {
+    16: r('- - - - - - - SUR SUR SUR'),
+    15: r('- - - - - - - - SUR -'),
+    14: r('- - - - - - - - - -'),
+  };
+
+  const ACT = {H:'Hit', S:'Stand', D:'Double', P:'Split', R:'Surrender', INS:'Take insurance', NOINS:'Decline'};
+  const MEANING = {
+    'Y':'split the pair',
+    'Y/N':"split if Double After Split is offered, otherwise don't",
+    'N':"don't split the pair",
+    'H':'hit',
+    'S':'stand',
+    'D':'double if allowed, otherwise hit',
+    'Ds':'double if allowed, otherwise stand',
+    'SUR':'surrender',
+  };
+  const PAIR_TIP = {A:'Always split aces.', 8:'Always split eights.', T:'Never split tens.', 5:'Never split fives.'};
+
+  const cls = c => (c === 'Y' || c === 'D' || c === 'SUR') ? 'g' : c === 'S' ? 'y' : (c === 'Ds' || c === 'Y/N') ? 't' : 'w';
+  const codePill = c => `<span class="code c-${cls(c)}">${c}</span>`;
+  const tableCodes = (t, row) => t === 'P' ? PAIRS[row] : t === 'S' ? SOFT[row] : t === 'H' ? HARD[row] : SUR[row];
+  const rowName = (t, row) => t === 'P' ? (row === 'T' ? 'T,T' : `${row},${row}`) : t === 'S' ? `A,${row}` : String(row);
+  const against = u => UP[u] === 'A' ? 'an ace' : UP[u] === '8' ? 'an 8' : `a ${UP[u]}`;
+
+  // Every hand on the chart, one per row x dealer upcard, plus the insurance reminder.
+  const CELLS = [];
+  const flat = codes => codes.every(c => c === codes[0]);
+  PAIR_ROWS.forEach(row => UP.forEach((_, u) => CELLS.push({kind:'P', row, up:u, id:`P:${row}:${u}`, flat:flat(PAIRS[row])})));
+  SOFT_ROWS.forEach(row => UP.forEach((_, u) => CELLS.push({kind:'S', row, up:u, id:`S:${row}:${u}`, flat:flat(SOFT[row])})));
+  HARD_ROWS.forEach(row => UP.forEach((_, u) => CELLS.push({kind:'H', row, up:u, id:`H:${row}:${u}`, flat:flat(HARD[row]) && !(SUR[row] || []).includes('SUR')})));
+  CELLS.push({kind:'I', row:null, up:9, id:'I', flat:false});
+  const CELL_BY_ID = Object.fromEntries(CELLS.map(c => [c.id, c]));
+
+  const hardCode = (t, u) => t < 8 ? 'H' : t > 17 ? 'S' : HARD[t][u];
+  // D and Ds only mean "double" while doubling is still possible (first two cards).
+  const fromCode = (code, n) => code === 'D' ? (n === 2 ? 'D' : 'H') : code === 'Ds' ? (n === 2 ? 'D' : 'S') : code;
+
+  function solve(sp, rules){
+    const u = sp.up;
+    if (sp.kind === 'I'){
+      return {
+        act:'NOINS',
+        why: sp.bj
+          ? "Even money is insurance under another name. It's a side bet on the dealer having blackjack, and it loses money over time. Decline it and keep your 3 to 2 payout."
+          : "Insurance is a side bet that the dealer has blackjack. It loses money over time, so decline it every time.",
+        strips:[],
+      };
+    }
+    if (sp.kind === 'P'){
+      const code = PAIRS[sp.row][u];
+      const total = sp.row === 'T' ? 20 : sp.row === 'A' ? 12 : 2 * Number(sp.row);
+      const hc = hardCode(total, u), hardAct = fromCode(hc, 2);
+      const strips = [{t:'P', row:sp.row}];
+      const tip = PAIR_TIP[sp.row] ? ' ' + PAIR_TIP[sp.row] : '';
+      if (code === 'Y') return {act:'P', why:`Chart ${codePill('Y')} ${MEANING.Y}.${tip}`, strips};
+      if (code === 'Y/N' && rules.das){
+        return {act:'P', why:`Chart ${codePill('Y/N')} ${MEANING['Y/N']}. Your table allows DAS, so split.`, alt:`Without DAS: don't split, ${ACT[hardAct].toLowerCase()} as hard ${total}.`, strips};
+      }
+      if (total >= 8 && total <= 17) strips.push({t:'H', row:total});
+      const play = total < 8 ? `Hard ${total} is below the chart, so hit.`
+        : total > 17 ? `Hard ${total}: stand.`
+        : `Play it as hard ${total}: ${codePill(hc)} ${MEANING[hc]}.`;
+      if (code === 'Y/N') return {act:hardAct, why:`Chart ${codePill('Y/N')} ${MEANING['Y/N']}. DAS is off at your table, so don't split. ${play}`, alt:'With DAS: split.', strips};
+      return {act:hardAct, why:`Chart ${codePill('N')} ${MEANING.N}.${tip} ${play}`, strips};
+    }
+    if (sp.kind === 'S'){
+      const code = SOFT[sp.row][u], act = fromCode(code, sp.n);
+      let why = `Chart ${codePill(code)} ${MEANING[code]}.`;
+      if (sp.n > 2 && (code === 'D' || code === 'Ds')) why += ` You've already hit, so doubling is off: ${ACT[act].toLowerCase()}.`;
+      return {act, why, strips:[{t:'S', row:sp.row}]};
+    }
+    // Hard totals, with late surrender checked first.
+    const t = sp.row, code = HARD[t][u], base = fromCode(code, sp.n);
+    const surSpot = !!SUR[t] && SUR[t][u] === 'SUR';
+    if (surSpot){
+      const strips = [{t:'R', row:t}, {t:'H', row:t}];
+      if (rules.sur && sp.n === 2){
+        return {act:'R', why:`Chart ${codePill('SUR')} late surrender: give up half your bet instead of playing hard ${t} against ${against(u)}.`, alt:`If surrender isn't offered: ${ACT[base].toLowerCase()}.`, strips};
+      }
+      const lead = !rules.sur ? 'This is a surrender spot, but surrender is off at your table.' : 'This is a surrender spot, but you can only surrender your first two cards.';
+      return {act:base, why:`${lead} Fall back to the hard totals: ${codePill(code)} ${MEANING[code]}.`, strips};
+    }
+    let why = `Chart ${codePill(code)} ${MEANING[code]}.`;
+    if (sp.n > 2 && code === 'D') why += " You've already hit, so doubling is off: hit.";
+    return {act:base, why, strips:[{t:'H', row:t}]};
+  }
+
+  // Card generation
+  const SUITS = ['♠','♥','♦','♣'];
+  const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const rand = n => Math.floor(Math.random() * n);
+  const pick = a => a[rand(a.length)];
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const tenRank = () => pick(['10','J','Q','K']);
+  const rankOf = v => (v === 1 || v === 11) ? 'A' : v === 10 ? tenRank() : String(v);
+  const valOf = rk => rk === 'A' ? 1 : (rk === '10' || rk === 'J' || rk === 'Q' || rk === 'K') ? 10 : Number(rk);
+
+  function handValue(cards){
+    let t = 0, ace = false;
+    for (const c of cards){ const v = valOf(c.rank); t += v; if (v === 1) ace = true; }
+    const soft = ace && t + 10 <= 21;
+    return {total: soft ? t + 10 : t, soft};
+  }
+  function softCombos(x){ const o = []; for (let a = 1; a <= 9; a++) for (let b = a; b <= 9; b++) if (a + b === x) o.push([a, b]); return o; }
+  function hardPairs(t){ const o = []; for (let a = 2; a <= 10; a++) for (let b = a + 1; b <= 10; b++) if (a + b === t) o.push([a, b]); return o; }
+  function hardTriples(t){ const o = []; for (let a = 2; a <= 10; a++) for (let b = a; b <= 10; b++) for (let c = b; c <= 10; c++) if (a + b + c === t) o.push([a, b, c]); return o; }
+
+  function makeHand(sp){
+    const suits = shuffle(SUITS.slice());
+    let k = 0;
+    const C = rank => ({rank, suit: suits[(k++) % 4]});
+    const upRank = UP[sp.up] === '10' ? tenRank() : UP[sp.up];
+    const dealer = [{rank:upRank, suit:pick(SUITS)}];
+    let player;
+    if (sp.kind === 'P'){
+      const rk = sp.row === 'A' ? 'A' : sp.row === 'T' ? tenRank() : String(sp.row);
+      player = [C(rk), C(rk)];
+    } else if (sp.kind === 'S'){
+      if (sp.n === 3){ const [a, b] = pick(softCombos(sp.row)); player = shuffle([C('A'), C(rankOf(a)), C(rankOf(b))]); }
+      else player = shuffle([C('A'), C(rankOf(sp.row))]);
+    } else if (sp.kind === 'H'){
+      const combo = sp.n === 3 ? pick(hardTriples(sp.row)) : pick(hardPairs(sp.row));
+      player = shuffle(combo.map(v => C(rankOf(v))));
+    } else {
+      if (Math.random() < 0.35) player = shuffle([C('A'), C(tenRank())]);
+      else { do { k = 0; player = [C(pick(RANKS)), C(pick(RANKS))]; } while (handValue(player).total === 21); }
+      sp.bj = handValue(player).total === 21;
+    }
+    return {dealer, player};
+  }
+
+  function handLabel(sp, cards){
+    if (sp.kind === 'I'){ if (sp.bj) return 'Blackjack'; const v = handValue(cards); return (v.soft ? 'Soft ' : 'Hard ') + v.total; }
+    if (sp.kind === 'P') return sp.row === 'A' ? 'Pair of aces' : sp.row === 'T' ? 'Pair of tens' : `Pair of ${sp.row}s`;
+    if (sp.kind === 'S') return `Soft ${11 + sp.row}`;
+    return `Hard ${sp.row}`;
+  }
+
+  return {UP, PAIR_ROWS, SOFT_ROWS, HARD_ROWS, SUR_ROWS, PAIRS, SOFT, HARD, SUR, ACT, MEANING, CELLS, CELL_BY_ID,
+    cls, codePill, tableCodes, rowName, solve, makeHand, handValue, handLabel, softCombos, hardPairs, hardTriples};
+})();
+</script>
+
+<script>
+/* UI */
+(() => {
+  "use strict";
+  const {UP, PAIR_ROWS, SOFT_ROWS, HARD_ROWS, SUR_ROWS, ACT, CELLS, CELL_BY_ID, cls, tableCodes, rowName, solve, makeHand, handLabel} = BS;
+  const $ = s => document.querySelector(s);
+  const VS15 = '︎';
+  const SUIT_NAME = {'♠':'spades','♥':'hearts','♦':'diamonds','♣':'clubs'};
+  const RANK_NAME = {A:'ace', J:'jack', Q:'queen', K:'king'};
+  const ACTIONS = [
+    {k:'H', name:'Hit', key:'H', c:'--a-hit'},
+    {k:'S', name:'Stand', key:'S', c:'--a-stand'},
+    {k:'D', name:'Double', key:'D', c:'--a-double'},
+    {k:'P', name:'Split', key:'P', c:'--a-split'},
+    {k:'R', name:'Surrender', key:'R', c:'--a-sur'},
+  ];
+
+  // Settings and stats live in this browser only.
+  const STORE = 'basic-strategy-flashcards-v1';
+  const DEFAULTS = {das:true, sur:true, multi:true, showTotal:true, auto:true, focus:'all', cats:{P:true, S:true, H:true, I:true}};
+  let settings = JSON.parse(JSON.stringify(DEFAULTS));
+  let stats = {};
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (saved && saved.settings) settings = {...DEFAULTS, ...saved.settings, cats:{...DEFAULTS.cats, ...(saved.settings.cats || {})}};
+    if (saved && saved.stats) stats = saved.stats;
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({settings, stats})); } catch (e) {} };
+
+  let session = {n:0, c:0, streak:0, best:0};
+  let current = null, recent = [], deckNote = '', autoTimer = 0, view = 'drill';
+
+  const isWeak = id => { const s = stats[id]; return !!s && (s.last === false || (s.n >= 3 && s.c / s.n < 0.7)); };
+  const weight = c => {
+    const s = stats[c.id], base = c.flat ? 0.5 : 1;
+    return base * (s ? [7, 3, 1.6, 0.8, 0.45][s.box] : 1.6);
+  };
+
+  function pickSpot(){
+    deckNote = '';
+    let pool = CELLS.filter(c => settings.cats[c.kind]);
+    if (settings.focus === 'weak'){
+      const weak = pool.filter(c => isWeak(c.id));
+      if (weak.length) pool = weak; else deckNote = 'No weak spots yet, so every hand is in the deck.';
+    }
+    if (!pool.length) pool = CELLS.filter(c => c.kind !== 'I');
+    const recentSet = new Set(recent);
+    let cand = pool.length > 6 ? pool.filter(c => !recentSet.has(c.id)) : pool.filter(c => c.id !== recent[recent.length - 1]);
+    if (!cand.length) cand = pool;
+    const main = cand.filter(c => c.kind !== 'I');
+    const ins = cand.find(c => c.kind === 'I');
+    const ws = main.map(weight);
+    const sum = ws.reduce((a, b) => a + b, 0);
+    const wIns = ins ? (main.length ? sum * 0.04 / 0.96 : 1) : 0;
+    let x = Math.random() * (sum + wIns);
+    for (let i = 0; i < main.length; i++){ x -= ws[i]; if (x < 0) return main[i]; }
+    return ins || main[main.length - 1];
+  }
+
+  function deal(cell, forced){
+    clearTimeout(autoTimer);
+    const sp = {...cell};
+    sp.n = (!forced && settings.multi && (sp.kind === 'S' || sp.kind === 'H') && Math.random() < 0.25) ? 3 : 2;
+    const hand = makeHand(sp);
+    current = {sp, dealer:hand.dealer, player:hand.player, answered:false, picked:null};
+    current.sol = solve(sp, settings);
+    if (forced) deckNote = 'Practicing the hand you picked on the chart. The next card comes from your deck.';
+    recent.push(sp.id); if (recent.length > 5) recent.shift();
+    renderTable(); renderPad(); renderVerdict(); renderMeta();
+  }
+  const nextCard = () => deal(pickSpot(), false);
+
+  const actName = k => k === 'INS' && current.sp.bj ? 'Take even money' : ACT[k];
+  function allowed(k){
+    const sp = current.sp;
+    if (sp.kind === 'I') return k === 'INS' || k === 'NOINS';
+    if (k === 'D') return sp.n === 2;
+    if (k === 'P') return sp.kind === 'P';
+    if (k === 'R') return settings.sur && sp.n === 2;
+    return k === 'H' || k === 'S';
+  }
+
+  // Rendering
+  function cardHTML(c, i, rot){
+    const red = c.suit === '♥' || c.suit === '♦';
+    const face = c.rank === 'J' || c.rank === 'Q' || c.rank === 'K';
+    const s = c.suit + VS15, ten = c.rank === '10' ? ' class="ten"' : '';
+    const label = `${RANK_NAME[c.rank] || c.rank} of ${SUIT_NAME[c.suit]}`;
+    return `<div class="card${red ? ' red' : ''}" style="--i:${i};--rot:${rot}deg" role="img" aria-label="${label}">`
+      + `<span class="idx tl"><b${ten}>${c.rank}</b><i>${s}</i></span>`
+      + `<span class="pip${face ? ' face' : ''}">${face ? c.rank : s}</span>`
+      + `<span class="idx br"><b${ten}>${c.rank}</b><i>${s}</i></span></div>`;
+  }
+  const spoken = c => RANK_NAME[c.rank] || c.rank;
+  const dealerName = c => c.rank === 'A' ? 'ace' : (c.rank === 'J' || c.rank === 'Q' || c.rank === 'K') ? `${c.rank} (10)` : c.rank;
+
+  function feltNote(sp){
+    if (sp.kind === 'I') return sp.bj ? 'Dealer shows an ace and offers even money.' : 'Dealer shows an ace and offers insurance.';
+    if (sp.n === 3) return "You've already hit, so double and surrender are off.";
+    return '';
+  }
+
+  function renderTable(){
+    const {sp, dealer, player} = current;
+    $('#dealerHand').innerHTML = cardHTML(dealer[0], 0, -2) + '<div class="card back" style="--i:1;--rot:3deg" role="img" aria-label="Face-down card"></div>';
+    const ph = $('#playerHand');
+    const rots = player.length === 3 ? [-7, 0, 7] : [-4, 4];
+    ph.classList.toggle('three', player.length === 3);
+    ph.innerHTML = player.map((c, i) => cardHTML(c, i + 2, rots[i])).join('');
+    updateTotal();
+    $('#feltNote').textContent = feltNote(sp);
+    $('#srDeal').textContent = `Dealer shows ${spoken(dealer[0])}. You have ${player.map(spoken).join(', ')}. ${feltNote(sp)}`;
+  }
+  function updateTotal(){
+    const el = $('#handTotal');
+    const show = settings.showTotal || current.answered;
+    el.textContent = show ? handLabel(current.sp, current.player) + (current.sp.n === 3 ? ' · 3 cards' : '') : 'Your hand';
+    el.classList.toggle('masked', !show);
+  }
+
+  function renderPad(){
+    const pad = $('#pad'), sp = current.sp;
+    const list = sp.kind === 'I'
+      ? [{k:'INS', name:actName('INS'), key:'Y', c:'--a-hit'}, {k:'NOINS', name:'Decline', key:'N', c:'--a-hit'}]
+      : ACTIONS;
+    pad.classList.toggle('two', sp.kind === 'I');
+    pad.classList.toggle('answered', current.answered);
+    pad.innerHTML = list.map(a => {
+      let c = 'act';
+      if (current.answered){
+        if (a.k === current.sol.act) c += ' is-right';
+        else if (a.k === current.picked) c += ' is-wrong';
+      }
+      return `<button type="button" class="${c}" data-act="${a.k}" style="--c:var(${a.c})"${allowed(a.k) ? '' : ' disabled'} aria-keyshortcuts="${a.key}"><span>${a.name}</span><kbd>${a.key}</kbd></button>`;
+    }).join('');
+  }
+
+  function stripsHTML(strips, u){
+    if (!strips.length) return '';
+    const head = `<div class="strip head"><span></span>${UP.map((x, i) => `<span class="${i === u ? 'on' : ''}">${x}</span>`).join('')}</div>`;
+    const rows = strips.map(s => {
+      const prefix = s.t === 'P' ? 'Pair' : s.t === 'S' ? 'Soft' : s.t === 'H' ? 'Hard' : 'Surr.';
+      const codes = tableCodes(s.t, s.row);
+      return `<div class="strip"><span class="strip-label">${prefix} ${rowName(s.t, s.row)}</span>`
+        + codes.map((c, i) => `<span class="sc c-${cls(c)}${i === u ? ' on' : ''}">${c === '-' ? '' : c}</span>`).join('') + '</div>';
+    }).join('');
+    return `<div class="strips" role="img" aria-label="Chart rows for this hand, dealer ${UP[u]} highlighted">${head}${rows}</div>`;
+  }
+
+  function renderVerdict(){
+    const v = $('#verdict'), {sp, sol} = current;
+    if (!current.answered){
+      v.className = 'verdict idle';
+      const keys = sp.kind === 'I'
+        ? '<kbd>Y</kbd> take &nbsp;<kbd>N</kbd> decline'
+        : '<kbd>H</kbd> hit &nbsp;<kbd>S</kbd> stand &nbsp;<kbd>D</kbd> double &nbsp;<kbd>P</kbd> split &nbsp;<kbd>R</kbd> surrender';
+      v.innerHTML = `<div class="v-top"><p class="v-prompt"><span class="hint-touch">Tap the play you'd make.</span><span class="hint-keys">Your play? ${keys}</span></p>`
+        + '<button type="button" class="next ghost" id="nextBtn">Skip</button></div>';
+      return;
+    }
+    const ok = current.picked === sol.act;
+    v.className = 'verdict ' + (ok ? 'good' : 'bad');
+    const ctx = `${handLabel(sp, current.player)} (${current.player.map(c => c.rank).join(', ')}) vs dealer ${dealerName(current.dealer[0])}`;
+    v.innerHTML = `<div class="v-top"><div class="v-head"><span class="badge">${ok ? 'Correct' : 'Missed'}</span><span class="v-act">${actName(sol.act)}</span>`
+      + (ok ? '' : `<span class="v-you">You picked ${actName(current.picked).toLowerCase()}</span>`) + '</div>'
+      + '<button type="button" class="next" id="nextBtn">Next hand <kbd>Space</kbd></button></div>'
+      + `<p class="v-ctx">${ctx}</p><p class="v-why">${sol.why}</p>`
+      + (sol.alt ? `<p class="v-alt">${sol.alt}</p>` : '')
+      + stripsHTML(sol.strips, sp.up);
+  }
+
+  function renderMeta(){
+    const pct = session.n ? Math.round(100 * session.c / session.n) + '%' : '–';
+    $('#score').innerHTML = `<span>Score <b>${session.c}/${session.n}</b></span><span>Accuracy <b>${pct}</b></span><span>Streak <b>${session.streak}</b></span><span>Best <b>${session.best}</b></span>`;
+    const chip = (label, on) => `<button type="button" class="chip${on ? ' on' : ''}" data-goto="setup"><span class="dot"></span>${label}</button>`;
+    $('#chips').innerHTML = chip(settings.das ? 'DAS on' : 'DAS off', settings.das)
+      + chip(settings.sur ? 'Surrender on' : 'Surrender off', settings.sur)
+      + chip(settings.focus === 'weak' ? 'Weak spots' : 'Every hand', true);
+    const note = $('#deckNote');
+    note.textContent = deckNote;
+    note.hidden = !deckNote;
+  }
+
+  function answer(k){
+    if (!current || current.answered || !allowed(k)) return;
+    const ok = k === current.sol.act;
+    current.answered = true; current.picked = k;
+    const s = stats[current.sp.id] || (stats[current.sp.id] = {n:0, c:0, box:1, last:null});
+    s.n++;
+    if (ok){ s.c++; s.box = Math.min(4, s.box + 1); } else s.box = 0;
+    s.last = ok;
+    session.n++;
+    if (ok){ session.c++; session.streak++; session.best = Math.max(session.best, session.streak); } else session.streak = 0;
+    save();
+    updateTotal(); renderPad(); renderVerdict(); renderMeta();
+    const nb = $('#nextBtn');
+    if (nb) nb.focus({preventScroll:true});
+    if (ok && settings.auto) autoTimer = setTimeout(() => { if (view === 'drill' && current.answered) nextCard(); }, 1000);
+  }
+
+  // Chart view
+  const TABLES = [
+    {t:'P', title:'Pair splitting', rows:PAIR_ROWS, key:[['Y','Split the pair'], ['Y/N',"Split if DAS is offered, otherwise don't"], ['N',"Don't split"]]},
+    {t:'S', title:'Soft totals', rows:SOFT_ROWS, key:[['H','Hit'], ['S','Stand'], ['D','Double if allowed, otherwise hit'], ['Ds','Double if allowed, otherwise stand']]},
+    {t:'H', title:'Hard totals', rows:HARD_ROWS, key:[['H','Hit'], ['S','Stand'], ['D','Double if allowed, otherwise hit']]},
+    {t:'R', title:'Late surrender', rows:SUR_ROWS, key:[['SUR','Surrender']]},
+  ];
+  function renderChart(){
+    const g = {P:[0,0], S:[0,0], H:[0,0]};
+    let seen = 0, weak = 0, answered = 0;
+    for (const c of CELLS){
+      const s = stats[c.id]; if (!s) continue;
+      if (g[c.kind]){ g[c.kind][0] += s.c; g[c.kind][1] += s.n; seen++; }
+      answered += s.n;
+      if (isWeak(c.id)) weak++;
+    }
+    const pct = x => x[1] ? Math.round(100 * x[0] / x[1]) + '%' : '–';
+    $('#summary').innerHTML = [
+      ['Pairs', pct(g.P), `${g.P[1]} answered`],
+      ['Soft', pct(g.S), `${g.S[1]} answered`],
+      ['Hard', pct(g.H), `${g.H[1]} answered`],
+      ['Hands seen', seen, 'of 280'],
+      ['Weak spots', weak, weak ? 'marked below' : 'none right now'],
+      ['Answered', answered, 'all time'],
+    ].map(([l, v, s]) => `<div><span class="lab">${l}</span><span class="val">${v}</span><span class="sub">${s}</span></div>`).join('');
+
+    const mark = $('#markMisses').checked;
+    $('#tables').innerHTML = TABLES.map(T => {
+      const body = T.rows.map(row => {
+        const tds = tableCodes(T.t, row).map((code, u) => {
+          const id = `${T.t === 'R' ? 'H' : T.t}:${row}:${u}`;
+          let m = '';
+          if (mark && !(T.t === 'R' && code === '-')){
+            const s = stats[id];
+            if (s && s.last === false) m = ' miss'; else if (s && s.c < s.n) m = ' fixed';
+          }
+          const shown = code === '-' ? '' : code;
+          return `<td><button type="button" class="cell c-${cls(code)}${m}" data-spot="${id}" aria-label="${rowName(T.t, row)} against ${UP[u]}: ${shown || 'no surrender'}. Practice this hand.">${shown}</button></td>`;
+        }).join('');
+        return `<tr><th scope="row">${rowName(T.t, row)}</th>${tds}</tr>`;
+      }).join('');
+      return `<section class="ctable"><h3>${T.title}</h3><div class="scroll"><table>`
+        + `<colgroup><col class="rowh">${'<col>'.repeat(10)}</colgroup>`
+        + `<thead><tr><th></th><th colspan="10" class="du">Dealer upcard</th></tr><tr><th scope="col"><span class="vh">Your hand</span></th>${UP.map(x => `<th scope="col">${x}</th>`).join('')}</tr></thead>`
+        + `<tbody>${body}</tbody></table></div>`
+        + `<p class="key">${T.key.map(([c, txt]) => `<span><span class="code c-${cls(c)}">${c}</span>${txt}</span>`).join('')}</p></section>`;
+    }).join('') + `<div class="ins">Insurance or even money: don't take it</div>`;
+  }
+
+  // Views
+  function setView(v){
+    view = v;
+    for (const name of ['drill', 'chart', 'setup']) $('#view-' + name).hidden = name !== v;
+    document.querySelectorAll('.tabs [data-view]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+    if (v === 'chart') renderChart();
+    if (v !== 'drill') clearTimeout(autoTimer);
+    if (v === 'setup') { $('#resetDone').hidden = true; $('#setupMsg').hidden = true; }
+  }
+
+  // Setup bindings
+  const OPT = {optDas:'das', optSur:'sur', optMulti:'multi', optTotal:'showTotal', optAuto:'auto'};
+  for (const [id, key] of Object.entries(OPT)){
+    const el = $('#' + id);
+    el.checked = !!settings[key];
+    el.addEventListener('change', () => {
+      settings[key] = el.checked; save();
+      if (current && !current.answered && (key === 'das' || key === 'sur')){ current.sol = solve(current.sp, settings); renderPad(); }
+      if (key === 'showTotal' && current) updateTotal();
+      renderMeta();
+    });
+  }
+  for (const k of ['P', 'S', 'H', 'I']){
+    const el = $('#cat' + k);
+    el.checked = !!settings.cats[k];
+    el.addEventListener('change', () => {
+      const next = {...settings.cats, [k]: el.checked};
+      if (!next.P && !next.S && !next.H && !next.I){ el.checked = true; $('#setupMsg').hidden = false; return; }
+      $('#setupMsg').hidden = true;
+      settings.cats = next; save(); renderMeta();
+    });
+  }
+  $('#focusAll').checked = settings.focus !== 'weak';
+  $('#focusWeak').checked = settings.focus === 'weak';
+  document.querySelectorAll('input[name="focus"]').forEach(el => el.addEventListener('change', () => {
+    settings.focus = el.value; save(); recent = []; renderMeta();
+  }));
+  $('#resetBtn').addEventListener('click', () => { $('#resetConfirm').hidden = false; $('#resetBtn').hidden = true; $('#resetDone').hidden = true; });
+  $('#resetNo').addEventListener('click', () => { $('#resetConfirm').hidden = true; $('#resetBtn').hidden = false; });
+  $('#resetYes').addEventListener('click', () => {
+    stats = {}; session = {n:0, c:0, streak:0, best:0}; recent = []; save();
+    $('#resetConfirm').hidden = true; $('#resetBtn').hidden = false; $('#resetDone').hidden = false;
+    renderMeta();
+  });
+
+  // Events
+  document.addEventListener('click', e => {
+    const tab = e.target.closest('[data-view]');
+    if (tab){ setView(tab.dataset.view); return; }
+    const go = e.target.closest('[data-goto]');
+    if (go){ setView(go.dataset.goto); window.scrollTo({top:0}); return; }
+    const act = e.target.closest('#pad [data-act]');
+    if (act){ answer(act.dataset.act); return; }
+    if (e.target.closest('#nextBtn')){ nextCard(); return; }
+    const spot = e.target.closest('[data-spot]');
+    if (spot && CELL_BY_ID[spot.dataset.spot]){ setView('drill'); deal(CELL_BY_ID[spot.dataset.spot], true); window.scrollTo({top:0}); }
+  });
+  $('#markMisses').addEventListener('change', renderChart);
+  document.addEventListener('keydown', e => {
+    if (view !== 'drill' || !current || e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    const k = e.key.toLowerCase();
+    const map = {h:'H', s:'S', d:'D', p:'P', r:'R', y:'INS', n:'NOINS'};
+    if (map[k]){ if (!current.answered){ e.preventDefault(); answer(map[k]); } return; }
+    if ((k === ' ' || k === 'enter') && current.answered && tag !== 'BUTTON'){ e.preventDefault(); nextCard(); }
+  });
+
+  nextCard();
+  requestAnimationFrame(() => $('#felt').classList.add('anim'));
+})();
+</script>
+<!-- artifact:end -->
+</html>
